@@ -20,6 +20,7 @@
     --warning: #f59e0b;
     --input-bg: #ffffff;
     --input-border: #cbd5e0;
+    --help-text: #718096;
 }
 
 body {
@@ -44,6 +45,7 @@ body.dark-mode {
     --warning: #fbbf24;
     --input-bg: #1e293b;
     --input-border: #475569;
+    --help-text: #94a3b8;
 }
 
 /* ========== LAYOUT ========== */
@@ -202,6 +204,14 @@ body.dark-mode .icon-moon {
 .form-group input::placeholder {
     color: var(--text-secondary);
     opacity: 0.6;
+}
+
+.help-text {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: var(--help-text);
+    font-style: italic;
 }
 
 /* ========== RESULTS SECTION ========== */
