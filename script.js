@@ -10,7 +10,8 @@ const state = {
             yieldPerCycle: 100,
             cycleTime: 60,
             residuePercentage: 0,
-            targetVolume: 10000
+            targetVolume: 10000,
+            unitSize: 1 // m³ per unit (for gas)
         },
         2: {
             resourceType: 'ore',
@@ -19,7 +20,8 @@ const state = {
             yieldPerCycle: 100,
             cycleTime: 60,
             residuePercentage: 0,
-            targetVolume: 10000
+            targetVolume: 10000,
+            unitSize: 1
         }
     }
 };
@@ -92,10 +94,23 @@ function attachInputListeners(setupNum) {
         yieldPerCycle: card.querySelector('.yield-per-cycle'),
         cycleTime: card.querySelector('.cycle-time'),
         residuePercentage: card.querySelector('.residue-percentage'),
-        targetVolume: card.querySelector('.target-volume')
+        targetVolume: card.querySelector('.target-volume'),
+        unitSize: card.querySelector('.unit-size')
     };
 
+    // Add resource type change listener to update UI labels
+    inputs.resourceType.addEventListener('change', (e) => {
+        updateResourceTypeUI(setupNum, e.target.value);
+        state.setups[setupNum].resourceType = e.target.value;
+        calculateResults(setupNum);
+        if (state.mode === 'compare') {
+            compareSetups();
+        }
+    });
+
     Object.keys(inputs).forEach(key => {
+        if (key === 'resourceType') return; // Already handled above
+        
         inputs[key].addEventListener('input', (e) => {
             const value = e.target.type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value;
             state.setups[setupNum][key] = value;
@@ -106,6 +121,24 @@ function attachInputListeners(setupNum) {
             }
         });
     });
+
+    // Initialize resource type UI
+    updateResourceTypeUI(setupNum, inputs.resourceType.value);
+}
+
+// ========== UPDATE UI BASED ON RESOURCE TYPE ==========
+function updateResourceTypeUI(setupNum, resourceType) {
+    const card = elements.cards[setupNum - 1];
+    const unitSizeGroup = card.querySelector('.unit-size-group');
+    const targetVolumeLabel = card.querySelector('.target-volume-label');
+    
+    if (resourceType === 'gas') {
+        unitSizeGroup.style.display = 'block';
+        targetVolumeLabel.innerHTML = 'Target Amount <span class="unit">(units)</span>';
+    } else {
+        unitSizeGroup.style.display = 'none';
+        targetVolumeLabel.innerHTML = 'Total Target Volume <span class="unit">(m³)</span>';
+    }
 }
 
 // ========== CALCULATIONS ==========
@@ -118,35 +151,37 @@ function calculateResults(setupNum) {
         setup.cycleTime = 0.1;
     }
 
-    // Calculate total yield per cycle (all modules combined)
-    // This is the raw yield before residue loss
+    // For gas: convert units to m³
+    // For ore/ice: use m³ directly
+    let targetVolumeM3;
+    if (setup.resourceType === 'gas') {
+        targetVolumeM3 = setup.targetVolume * setup.unitSize;
+    } else {
+        targetVolumeM3 = setup.targetVolume;
+    }
+
+    // Calculate total yield per cycle (all modules combined) in m³
     const totalYieldPerCycle = setup.yieldPerCycle * setup.numModules;
 
     // Calculate effective yield after residue (all modules)
-    // Residue represents the percentage LOST, so we subtract it
     const effectiveYieldPerCycle = totalYieldPerCycle * (1 - setup.residuePercentage / 100);
 
     // Calculate yield per minute
-    // (60 seconds / cycle time) gives us cycles per minute
     const cyclesPerMinute = 60 / setup.cycleTime;
     const yieldPerMinute = effectiveYieldPerCycle * cyclesPerMinute;
 
     // Calculate total cycles required to reach target volume
-    // We need to divide target volume by EFFECTIVE yield (after residue loss)
-    // If effective yield is 0 (100% residue), prevent division by zero
     let totalCycles = 0;
     if (effectiveYieldPerCycle > 0) {
-        totalCycles = Math.ceil(setup.targetVolume / effectiveYieldPerCycle);
+        totalCycles = Math.ceil(targetVolumeM3 / effectiveYieldPerCycle);
     } else {
         totalCycles = Infinity;
     }
 
-    // Calculate total time required in seconds
-    // Total cycles × time per cycle
+    // Calculate total time required in SECONDS
     const totalSeconds = totalCycles === Infinity ? Infinity : totalCycles * setup.cycleTime;
 
     // Calculate total residue wasted
-    // For each cycle, we lose (residue percentage) of the total yield
     const residuePerCycle = totalYieldPerCycle * (setup.residuePercentage / 100);
     const totalResidue = totalCycles === Infinity ? Infinity : residuePerCycle * totalCycles;
 
@@ -207,11 +242,17 @@ function formatTime(totalSeconds) {
         return '∞';
     }
 
-    const hours = Math.floor(totalSeconds / 3600);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = Math.floor(totalSeconds % 60);
 
-    return `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
+    // Format with days if needed
+    if (days > 0) {
+        return `${days}d ${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
+    } else {
+        return `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
+    }
 }
 
 function padZero(num) {
