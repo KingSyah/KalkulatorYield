@@ -1,60 +1,46 @@
 # ⛏️ EVE Online Mining Calculator
 
-Hitung yield, waktu, dan efisiensi modul tambang di EVE Online.
+Kalkulator mining yield paling lengkap untuk EVE Online. Fleet boosts, drones, implants, time-to-pop — semuanya client-side.
 
 **🔗 [Buka Calculator →](https://kingsyah.github.io/KalkulatorYield/)**
 
 ---
 
-## Fitur Utama
+## Fitur
 
-🪨 **15 Ore** · 🧊 **10 Ice** · ☁️ **19 Gas** — data volume asli
+🪨 **15 Ore** · 🧊 **10 Ice** · ☁️ **19 Gas** · 🤖 **4 Drones**
 
-🚢 **36 Kapal** — frigate, barges, exhumers, command, haulers, battleships
+🚢 **12 Kapal Mining** — Venture, barges, exhumers, Orca, Rorqual
 
-⚙️ **14 Modul** — Mining Laser, Strip Miner, Ice/Gas Harvester
+🚀 **Fleet Boosts** — Mining Foreman Burst (Orca/Rorqual/Porpoise), -25% cycle, +13% yield
 
-📊 **Kalkulasi** — yield/cycle, yield/jam, waktu total, residue loss
+🤖 **Drone Mining** — Mining Drone I/II, Augmented, Excavator (0–5 drone aktif)
 
-⚡ **Mode Compare** — bandingkan 2 setup, lihat mana yang lebih efisien
+💊 **Implants / Boosters** — Michi's, X-Instinct, preset atau custom %
 
-📱 **Mobile-first** — responsif, dark theme, tanpa server
+☄️ **Time-to-Pop** — prediksi waktu asteroid hancur berdasarkan yield + residue
 
----
+📊 **Total Yield** — modul + drone, semua bonus multiplicative
 
-## Preview
+⚡ **Compare Mode** — bandingkan 2 setup side-by-side
 
-```
-┌─────────────────────────────┐
-│  ⛏️ EVE Mining Calc         │
-│  [Single] [Compare ⚡]      │
-│                             │
-│  [🪨 Ore] [🧊 Ice] [☁️ Gas]│
-│                             │
-│  Ship: [Hulk          ▾]   │
-│  Module: [Strip Miner II▾]  │
-│  Modules: [2]               │
-│  Skill Level: [5]           │
-│                             │
-│  ── Results ──              │
-│  Yield/Cycle:  1,600.00 m³  │
-│  Yield/Hour:   3,200.00 m³  │
-│  Cycle Time:   3m 0s        │
-│  Total Time:   6h 15m       │
-└─────────────────────────────┘
-```
+🌗 **Light / Dark Mode** — toggle tema, tersimpan di browser
+
+🎨 **Cyberpunk UI** — neon glow, scanline, font Orbitron + JetBrains Mono
+
+📱 **Mobile-first** — responsif, zero dependencies, tanpa server
 
 ---
 
 ## Cara Pakai
 
 1. Buka [**link ini**](https://kingsyah.github.io/KalkulatorYield/)
-2. Pilih tipe resource (Ore / Ice / Gas)
-3. Pilih kapal dan modul
-4. Isi skill level dan jumlah modul
+2. Pilih kapal, modul, skill, implant, fleet boost
+3. Tambahkan drone (opsional)
+4. Isi asteroid size untuk prediksi time-to-pop (opsional)
 5. Lihat hasilnya secara real-time
 
-Tidak perlu install. Tidak perlu akun. Langsung pakai.
+**Tidak perlu install. Tidak perlu akun. Langsung pakai.**
 
 ---
 
