@@ -1,191 +1,199 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mining Yield Efficiency Calculator</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>EVE Online Mining Calculator</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Mining Yield Calculator</h1>
-            <button id="darkModeToggle" class="theme-toggle" aria-label="Toggle dark mode">
-                <span class="icon-sun">☀️</span>
-                <span class="icon-moon">🌙</span>
-            </button>
-        </header>
-
-        <div class="mode-selector">
-            <button id="singleMode" class="mode-btn active">Single Setup</button>
-            <button id="compareMode" class="mode-btn">Compare (2 Setups)</button>
+  <div class="app">
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-left">
+        <div class="header-icon">⛏️</div>
+        <div>
+          <h1>EVE Mining Calc</h1>
+          <div class="header-sub">Yield · Time · Efficiency</div>
         </div>
-
-        <div id="calculatorContainer" class="calculator-container">
-            <div class="calculator-card" data-setup="1">
-                <h2>Mining Setup <span class="setup-number">1</span></h2>
-                
-                <div class="form-group">
-                    <label for="resourceType1">Resource Type</label>
-                    <select id="resourceType1" class="resource-type">
-                        <option value="ore">Ore</option>
-                        <option value="ice">Ice</option>
-                        <option value="gas">Gas</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="resourceName1">Resource Name</label>
-                    <input type="text" id="resourceName1" class="resource-name" placeholder="e.g., Golden Cytoserocin">
-                </div>
-
-                <div class="form-group unit-size-group" style="display: none;">
-                    <label for="unitSize1">Unit Size <span class="unit">(m³ per unit)</span></label>
-                    <input type="number" id="unitSize1" class="unit-size" min="0.01" step="0.01" value="10">
-                    <small class="help-text">Gas units vary: Golden Cytoserocin = 10 m³/unit, Cytoserocin = 5 m³/unit</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="numModules1">Number of Turrets/Modules</label>
-                    <input type="number" id="numModules1" class="num-modules" min="1" step="1" value="2">
-                </div>
-
-                <div class="form-group">
-                    <label for="yieldPerCycle1">Yield per Cycle (per module) <span class="unit">(m³)</span></label>
-                    <input type="number" id="yieldPerCycle1" class="yield-per-cycle" min="0" step="0.01" value="30">
-                    <small class="help-text">Gas Harvester II typically yields ~30 m³/cycle</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="cycleTime1">Cycle Time <span class="unit">(seconds)</span></label>
-                    <input type="number" id="cycleTime1" class="cycle-time" min="0.1" step="0.1" value="30">
-                    <small class="help-text">Gas Harvester cycle time is typically 20-30 seconds</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="residuePercentage1">Residue Percentage <span class="unit">(%)</span></label>
-                    <input type="number" id="residuePercentage1" class="residue-percentage" min="0" max="100" step="0.1" value="0">
-                </div>
-
-                <div class="form-group">
-                    <label for="targetVolume1" class="target-volume-label">Total Target Volume <span class="unit">(m³)</span></label>
-                    <input type="number" id="targetVolume1" class="target-volume" min="0" step="1" value="9000">
-                </div>
-
-                <div class="results">
-                    <h3>Results</h3>
-                    <div class="result-row">
-                        <span class="result-label">Total Yield per Cycle:</span>
-                        <span class="result-value" data-result="totalYieldPerCycle">0.00 m³</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Effective Yield per Cycle:</span>
-                        <span class="result-value" data-result="effectiveYield">0.00 m³</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Yield per Minute:</span>
-                        <span class="result-value" data-result="yieldPerMinute">0.00 m³/min</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Total Cycles Required:</span>
-                        <span class="result-value" data-result="totalCycles">0</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Total Time Required:</span>
-                        <span class="result-value" data-result="totalTime">00:00:00</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Total Residue Wasted:</span>
-                        <span class="result-value" data-result="totalResidue">0.00 m³</span>
-                    </div>
-                </div>
-
-                <div class="efficiency-badge"></div>
-            </div>
-
-            <div class="calculator-card" data-setup="2" style="display: none;">
-                <h2>Mining Setup <span class="setup-number">2</span></h2>
-                
-                <div class="form-group">
-                    <label for="resourceType2">Resource Type</label>
-                    <select id="resourceType2" class="resource-type">
-                        <option value="ore">Ore</option>
-                        <option value="ice">Ice</option>
-                        <option value="gas">Gas</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="resourceName2">Resource Name</label>
-                    <input type="text" id="resourceName2" class="resource-name" placeholder="e.g., Golden Cytoserocin">
-                </div>
-
-                <div class="form-group unit-size-group" style="display: none;">
-                    <label for="unitSize2">Unit Size <span class="unit">(m³ per unit)</span></label>
-                    <input type="number" id="unitSize2" class="unit-size" min="0.01" step="0.01" value="10">
-                    <small class="help-text">Gas units vary: Golden Cytoserocin = 10 m³/unit, Cytoserocin = 5 m³/unit</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="numModules2">Number of Turrets/Modules</label>
-                    <input type="number" id="numModules2" class="num-modules" min="1" step="1" value="2">
-                </div>
-
-                <div class="form-group">
-                    <label for="yieldPerCycle2">Yield per Cycle (per module) <span class="unit">(m³)</span></label>
-                    <input type="number" id="yieldPerCycle2" class="yield-per-cycle" min="0" step="0.01" value="30">
-                    <small class="help-text">Gas Harvester II typically yields ~30 m³/cycle</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="cycleTime2">Cycle Time <span class="unit">(seconds)</span></label>
-                    <input type="number" id="cycleTime2" class="cycle-time" min="0.1" step="0.1" value="30">
-                    <small class="help-text">Gas Harvester cycle time is typically 20-30 seconds</small>
-                </div>
-
-                <div class="form-group">
-                    <label for="residuePercentage2">Residue Percentage <span class="unit">(%)</span></label>
-                    <input type="number" id="residuePercentage2" class="residue-percentage" min="0" max="100" step="0.1" value="0">
-                </div>
-
-                <div class="form-group">
-                    <label for="targetVolume2" class="target-volume-label">Total Target Volume <span class="unit">(m³)</span></label>
-                    <input type="number" id="targetVolume2" class="target-volume" min="0" step="1" value="9000">
-                </div>
-
-                <div class="results">
-                    <h3>Results</h3>
-                    <div class="result-row">
-                        <span class="result-label">Total Yield per Cycle:</span>
-                        <span class="result-value" data-result="totalYieldPerCycle">0.00 m³</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Effective Yield per Cycle:</span>
-                        <span class="result-value" data-result="effectiveYield">0.00 m³</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Yield per Minute:</span>
-                        <span class="result-value" data-result="yieldPerMinute">0.00 m³/min</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Total Cycles Required:</span>
-                        <span class="result-value" data-result="totalCycles">0</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Total Time Required:</span>
-                        <span class="result-value" data-result="totalTime">00:00:00</span>
-                    </div>
-                    <div class="result-row">
-                        <span class="result-label">Total Residue Wasted:</span>
-                        <span class="result-value" data-result="totalResidue">0.00 m³</span>
-                    </div>
-                </div>
-
-                <div class="efficiency-badge"></div>
-            </div>
-        </div>
+      </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- MODE TABS -->
+    <div class="tabs">
+      <button class="tab active" data-mode="single">Single Setup</button>
+      <button class="tab" data-mode="compare">Compare ⚡</button>
+    </div>
+
+    <!-- RESOURCE TYPE SEGMENT -->
+    <div class="segment" id="resourceSegment">
+      <button class="seg-btn active" data-type="ore">🪨 Ore</button>
+      <button class="seg-btn" data-type="ice">🧊 Ice</button>
+      <button class="seg-btn" data-type="gas">☁️ Gas</button>
+    </div>
+
+    <!-- SETUP CARDS -->
+    <div id="cardContainer">
+      <!-- Setup 1 -->
+      <div class="card" id="setup1">
+        <div class="card-title">
+          <div class="card-num">1</div>
+          <h2>Mining Setup 1</h2>
+        </div>
+
+        <!-- Ore Presets -->
+        <div class="chips" id="presets1"></div>
+
+        <div class="field">
+          <div class="field-label"><span>Ship</span></div>
+          <select id="ship1"></select>
+        </div>
+        <div class="field">
+          <div class="field-label"><span>Mining Module</span></div>
+          <select id="module1"></select>
+        </div>
+        <div class="field">
+          <div class="field-label"><span>Number of Modules</span></div>
+          <input type="number" id="numModules1" min="1" max="20" value="2">
+        </div>
+        <div class="field">
+          <div class="field-label"><span>Mining Skill Level</span><span class="field-hint">0–5</span></div>
+          <input type="number" id="skillLevel1" min="0" max="5" value="5">
+        </div>
+        <div class="field">
+          <div class="field-label"><span>Implant Bonus</span><span class="field-hint">%</span></div>
+          <input type="number" id="implant1" min="0" max="100" step="0.1" value="0">
+        </div>
+        <div class="field" id="residueField1">
+          <div class="field-label"><span>Residue Probability</span><span class="field-hint">%</span></div>
+          <input type="number" id="residue1" min="0" max="100" step="0.1" value="0">
+        </div>
+        <div class="field">
+          <div class="field-label"><span id="targetLabel1">Target Volume</span><span class="field-hint" id="targetUnit1">m³</span></div>
+          <input type="number" id="target1" min="1" value="10000">
+        </div>
+
+        <div class="results">
+          <h3>Results</h3>
+          <div class="result-grid">
+            <div class="result-item">
+              <div class="result-label">Yield / Cycle</div>
+              <div class="result-val" id="r_yieldCycle1">—</div>
+            </div>
+            <div class="result-item">
+              <div class="result-label">Yield / Hour</div>
+              <div class="result-val" id="r_yieldHour1">—</div>
+            </div>
+            <div class="result-item">
+              <div class="result-label">Cycle Time</div>
+              <div class="result-val" id="r_cycleTime1">—</div>
+            </div>
+            <div class="result-item">
+              <div class="result-label">Cycles Needed</div>
+              <div class="result-val" id="r_cycles1">—</div>
+            </div>
+            <div class="result-item wide">
+              <div class="result-label">Total Time</div>
+              <div class="result-val" id="r_totalTime1">—</div>
+            </div>
+            <div class="result-item wide" id="residueResult1">
+              <div class="result-label">Residue Lost</div>
+              <div class="result-val red" id="r_residue1">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Setup 2 (compare mode) -->
+      <div class="card" id="setup2" style="display:none">
+        <div class="card-title">
+          <div class="card-num">2</div>
+          <h2>Mining Setup 2</h2>
+        </div>
+        <div class="chips" id="presets2"></div>
+        <div class="field">
+          <div class="field-label"><span>Ship</span></div>
+          <select id="ship2"></select>
+        </div>
+        <div class="field">
+          <div class="field-label"><span>Mining Module</span></div>
+          <select id="module2"></select>
+        </div>
+        <div class="field">
+          <div class="field-label"><span>Number of Modules</span></div>
+          <input type="number" id="numModules2" min="1" max="20" value="2">
+        </div>
+        <div class="field">
+          <div class="field-label"><span>Mining Skill Level</span><span class="field-hint">0–5</span></div>
+          <input type="number" id="skillLevel2" min="0" max="5" value="5">
+        </div>
+        <div class="field">
+          <div class="field-label"><span>Implant Bonus</span><span class="field-hint">%</span></div>
+          <input type="number" id="implant2" min="0" max="100" step="0.1" value="0">
+        </div>
+        <div class="field" id="residueField2">
+          <div class="field-label"><span>Residue Probability</span><span class="field-hint">%</span></div>
+          <input type="number" id="residue2" min="0" max="100" step="0.1" value="0">
+        </div>
+        <div class="field">
+          <div class="field-label"><span id="targetLabel2">Target Volume</span><span class="field-hint" id="targetUnit2">m³</span></div>
+          <input type="number" id="target2" min="1" value="10000">
+        </div>
+        <div class="results">
+          <h3>Results</h3>
+          <div class="result-grid">
+            <div class="result-item">
+              <div class="result-label">Yield / Cycle</div>
+              <div class="result-val" id="r_yieldCycle2">—</div>
+            </div>
+            <div class="result-item">
+              <div class="result-label">Yield / Hour</div>
+              <div class="result-val" id="r_yieldHour2">—</div>
+            </div>
+            <div class="result-item">
+              <div class="result-label">Cycle Time</div>
+              <div class="result-val" id="r_cycleTime2">—</div>
+            </div>
+            <div class="result-item">
+              <div class="result-label">Cycles Needed</div>
+              <div class="result-val" id="r_cycles2">—</div>
+            </div>
+            <div class="result-item wide">
+              <div class="result-label">Total Time</div>
+              <div class="result-val" id="r_totalTime2">—</div>
+            </div>
+            <div class="result-item wide" id="residueResult2">
+              <div class="result-label">Residue Lost</div>
+              <div class="result-val red" id="r_residue2">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Compare summary -->
+      <div class="badge-compare" id="compareSummary" style="display:none">
+        <h3>⚡ Comparison</h3>
+        <div class="compare-winner" id="compareWinner"></div>
+        <div class="compare-diff" id="compareDiff"></div>
+        <div class="compare-bar"><div class="compare-bar-fill a" id="barA"></div></div>
+        <div class="compare-bar" style="margin-top:4px"><div class="compare-bar-fill b" id="barB"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-inner">
+      <span class="footer-crown">👑</span>
+      <span class="footer-text" id="copyright-text"></span>
+      <span class="footer-crown">👑</span>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
