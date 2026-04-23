@@ -110,12 +110,28 @@ h3{font-size:.75rem;font-weight:600;color:var(--text2);text-transform:uppercase;
 .app.compare-active .field-label span{font-size:.72rem}
 .app.compare-active .field select,.app.compare-active .field input{padding:7px 9px;font-size:.82rem}
 
-/* Preset chips */
-.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;max-height:72px;overflow-y:auto}
-.chip{padding:5px 9px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;color:var(--text2);font-size:.72rem;cursor:pointer;transition:all .2s;font-family:var(--font);white-space:nowrap}
+/* Preset chips — horizontal scroll, resizable */
+.chips{
+  display:flex;flex-wrap:nowrap;gap:6px;
+  margin-bottom:12px;
+  overflow-x:auto;overflow-y:hidden;
+  padding:6px 4px;
+  resize:vertical;
+  min-height:36px;max-height:200px;
+  cursor:grab;
+  scrollbar-width:thin;
+}
+.chips:active{cursor:grabbing}
+.chip{padding:6px 11px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;color:var(--text2);font-size:.75rem;cursor:pointer;transition:all .2s;font-family:var(--font);white-space:nowrap;flex-shrink:0}
 .chip:hover,.chip.active{background:var(--accent);color:#000;border-color:var(--accent)}
-.app.compare-active .chips{max-height:60px;gap:4px;margin-bottom:10px}
-.app.compare-active .chip{padding:4px 7px;font-size:.68rem}
+/* Resize handle indicator */
+.chips::after{
+  content:'⠿';position:absolute;bottom:2px;right:6px;
+  font-size:.7rem;color:var(--text3);opacity:.4;pointer-events:none;
+}
+.chips{position:relative}
+.app.compare-active .chips{gap:4px;margin-bottom:10px;padding:4px 3px;min-height:32px}
+.app.compare-active .chip{padding:5px 8px;font-size:.7rem}
 
 /* ========== RESULTS ========== */
 .results{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-top:14px}
@@ -194,6 +210,6 @@ h3{font-size:.75rem;font-weight:600;color:var(--text2);text-transform:uppercase;
   .tab{padding:8px 4px;font-size:.8rem}
   .segment{gap:1px;padding:2px}
   .seg-btn{padding:7px 2px;font-size:.75rem}
-  .chips{gap:4px}
-  .chip{padding:4px 7px;font-size:.68rem}
+  .chips{gap:4px;padding:4px 3px}
+  .chip{padding:5px 9px;font-size:.7rem}
 }
