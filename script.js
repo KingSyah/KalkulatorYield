@@ -190,6 +190,9 @@ function updateResourceUI() {
   populatePresets('presets1', t === 'ore' ? ORE_PRESETS : t === 'ice' ? ICE_PRESETS : GAS_PRESETS);
   populatePresets('presets2', t === 'ore' ? ORE_PRESETS : t === 'ice' ? ICE_PRESETS : GAS_PRESETS);
 
+  // Reset resize height when switching resource type
+  ['presets1', 'presets2'].forEach(id => { $(id).style.height = ''; });
+
   // Update labels & residue visibility
   for (let n = 1; n <= 2; n++) {
     if (t === 'gas') {
