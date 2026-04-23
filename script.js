@@ -12,7 +12,7 @@ const SHIPS = [
   // Frigates
   { name: 'Venture', bonus: 0.00, cat: 'frigate', note: 'Mining frigate, +2 turret slots' },
   { name: 'Prospect', bonus: 0.00, cat: 'frigate', note: 'Covert ops, gas/ore mining' },
-  { name: 'Endurance', bonus: 0.00, cat: 'frigate', note: 'Expedition frigate, ice bonus' },
+  { name: 'Endurance', bonus: 0.00, cat: 'ice_frigate', note: 'Expedition frigate, can fit ice harvesters' },
   // Mining Barges
   { name: 'Procurer', bonus: 0.00, cat: 'barge', note: 'T1 barge, tanky' },
   { name: 'Retriever', bonus: 0.00, cat: 'barge', note: 'T1 barge, large ore hold' },
@@ -22,10 +22,10 @@ const SHIPS = [
   { name: 'Mackinaw', bonus: 0.15, cat: 'exhumer', note: 'Exhumer, +15% ice yield' },
   { name: 'Hulk', bonus: 0.00, cat: 'exhumer', note: 'Exhumer, max yield (2 strips)' },
   // Industrial Command
-  { name: 'Porpoise', bonus: 0.25, cat: 'command', note: 'Industrial command, +25%' },
-  { name: 'Orca', bonus: 0.25, cat: 'command', note: 'Industrial command, +25%' },
+  { name: 'Porpoise', bonus: 0.25, cat: 'porpoise', note: 'Industrial command, +25%, drone mining only' },
+  { name: 'Orca', bonus: 0.25, cat: 'capital_cmd', note: 'Industrial command, +25%, strip/ice via Industrial Core' },
   // Capital
-  { name: 'Rorqual', bonus: 0.40, cat: 'capital', note: 'Capital, +40%' },
+  { name: 'Rorqual', bonus: 0.40, cat: 'capital_cmd', note: 'Capital, +40%, strip/ice via Industrial Core' },
   // General Purpose (bisa fit mining laser & gas harvester saja)
   { name: 'Capsule', bonus: 0.00, cat: 'general', note: 'Basic, 1 turret slot' },
   { name: 'Nereus', bonus: 0.00, cat: 'general', note: 'Hauler, can fit mining laser' },
@@ -71,9 +71,9 @@ const MODULES = {
     { name: 'ORE Strip Miner', yield: 900, cycle: 180, residue: 0, slot: 'strip' },
   ],
   ice: [
-    { name: 'Ice Harvester I', yield: 1000, cycle: 300, residue: 0, slot: 'strip' },
-    { name: 'Ice Harvester II', yield: 1000, cycle: 240, residue: 0, slot: 'strip' },
-    { name: 'ORE Ice Harvester', yield: 1000, cycle: 200, residue: 0, slot: 'strip' },
+    { name: 'Ice Harvester I', yield: 1000, cycle: 300, residue: 0, slot: 'ice' },
+    { name: 'Ice Harvester II', yield: 1000, cycle: 240, residue: 0, slot: 'ice' },
+    { name: 'ORE Ice Harvester', yield: 1000, cycle: 200, residue: 0, slot: 'ice' },
   ],
   gas: [
     { name: 'Gas Harvester I', yield: 10, cycle: 30, residue: 0, slot: 'turret' },
@@ -190,9 +190,19 @@ function getFilteredModules(resourceType, shipIdx) {
   const allMods = MODULES[resourceType];
   const ship = SHIPS[shipIdx];
   if (!ship) return allMods;
-  const isBarge = BARGE_EXHUMER.includes(ship.cat);
-  if (isBarge) return allMods; // barge/exhumer bisa semua modul
-  // kapal lain hanya turret modules
+  const cat = ship.cat;
+  if (BARGE_EXHUMER.includes(cat)) return allMods; // barge/exhumer bisa semua modul
+  if (cat === 'capital_cmd') {
+    // Orca/Rorqual: strip + ice modules (via Industrial Core role bonus)
+    return allMods.filter(m => m.slot === 'strip' || m.slot === 'ice');
+  }
+  if (cat === 'ice_frigate') {
+    // Endurance: turret modules + ice harvesters (role bonus)
+    return allMods.filter(m => m.slot === 'turret' || m.slot === 'ice');
+  }
+  // Porpoise: tidak ada turret slots, tidak ada strip bonus → hanya drone mining
+  if (cat === 'porpoise') return [];
+  // frigate, general: hanya turret modules
   return allMods.filter(m => m.slot === 'turret');
 }
 
@@ -203,7 +213,7 @@ function updateModulesForShip(n) {
   const sel = $(`module${n}`);
   const prevName = sel.options[sel.selectedIndex]?.text || '';
   sel.innerHTML = filtered.map((m, i) =>
-    `<option value="${i}">${m.name}${m.slot === 'strip' ? ' ⚓' : ''}</option>`
+    `<option value="${i}">${m.name}${m.slot === 'strip' || m.slot === 'ice' ? ' ⚓' : ''}</option>`
   ).join('');
   // try to keep previous selection
   const keepIdx = filtered.findIndex(m => m.name === prevName);
