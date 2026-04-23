@@ -367,13 +367,19 @@ function init() {
       qsa('.tab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       state.mode = btn.dataset.mode;
+      const app = document.querySelector('.app');
       const s2 = $('setup2');
+      const vs = $('vsDivider');
       const summary = $('compareSummary');
       if (state.mode === 'compare') {
+        app.classList.add('compare-active');
         s2.style.display = '';
+        vs.style.display = '';
         summary.style.display = '';
       } else {
+        app.classList.remove('compare-active');
         s2.style.display = 'none';
+        vs.style.display = 'none';
         summary.style.display = 'none';
       }
       calculateAll();

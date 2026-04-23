@@ -38,11 +38,14 @@
 
     <!-- SETUP CARDS -->
     <div id="cardContainer">
+      <!-- Side-by-side wrapper for compare mode -->
+      <div class="compare-wrapper" id="compareWrapper">
+
       <!-- Setup 1 -->
       <div class="card" id="setup1">
         <div class="card-title">
           <div class="card-num">1</div>
-          <h2>Mining Setup 1</h2>
+          <h2>Setup 1</h2>
         </div>
 
         <!-- Ore Presets -->
@@ -56,21 +59,29 @@
           <div class="field-label"><span>Mining Module</span></div>
           <select id="module1"></select>
         </div>
-        <div class="field">
-          <div class="field-label"><span>Number of Modules</span></div>
-          <input type="number" id="numModules1" min="1" max="20" value="2">
+        <div class="field field-compact">
+          <div class="field-row">
+            <div class="field-col">
+              <div class="field-label"><span>Modules</span></div>
+              <input type="number" id="numModules1" min="1" max="20" value="2">
+            </div>
+            <div class="field-col">
+              <div class="field-label"><span>Skill</span><span class="field-hint">0–5</span></div>
+              <input type="number" id="skillLevel1" min="0" max="5" value="5">
+            </div>
+          </div>
         </div>
-        <div class="field">
-          <div class="field-label"><span>Mining Skill Level</span><span class="field-hint">0–5</span></div>
-          <input type="number" id="skillLevel1" min="0" max="5" value="5">
-        </div>
-        <div class="field">
-          <div class="field-label"><span>Implant Bonus</span><span class="field-hint">%</span></div>
-          <input type="number" id="implant1" min="0" max="100" step="0.1" value="0">
-        </div>
-        <div class="field" id="residueField1">
-          <div class="field-label"><span>Residue Probability</span><span class="field-hint">%</span></div>
-          <input type="number" id="residue1" min="0" max="100" step="0.1" value="0">
+        <div class="field field-compact">
+          <div class="field-row">
+            <div class="field-col">
+              <div class="field-label"><span>Implant</span><span class="field-hint">%</span></div>
+              <input type="number" id="implant1" min="0" max="100" step="0.1" value="0">
+            </div>
+            <div class="field-col" id="residueField1">
+              <div class="field-label"><span>Residue</span><span class="field-hint">%</span></div>
+              <input type="number" id="residue1" min="0" max="100" step="0.1" value="0">
+            </div>
+          </div>
         </div>
         <div class="field">
           <div class="field-label"><span id="targetLabel1">Target Volume</span><span class="field-hint" id="targetUnit1">m³</span></div>
@@ -93,7 +104,7 @@
               <div class="result-val" id="r_cycleTime1">—</div>
             </div>
             <div class="result-item">
-              <div class="result-label">Cycles Needed</div>
+              <div class="result-label">Cycles</div>
               <div class="result-val" id="r_cycles1">—</div>
             </div>
             <div class="result-item wide">
@@ -108,11 +119,18 @@
         </div>
       </div>
 
+      <!-- VS Divider (compare mode only) -->
+      <div class="vs-divider" id="vsDivider" style="display:none">
+        <div class="vs-line"></div>
+        <div class="vs-badge">VS</div>
+        <div class="vs-line"></div>
+      </div>
+
       <!-- Setup 2 (compare mode) -->
       <div class="card" id="setup2" style="display:none">
         <div class="card-title">
           <div class="card-num">2</div>
-          <h2>Mining Setup 2</h2>
+          <h2>Setup 2</h2>
         </div>
         <div class="chips" id="presets2"></div>
         <div class="field">
@@ -123,21 +141,29 @@
           <div class="field-label"><span>Mining Module</span></div>
           <select id="module2"></select>
         </div>
-        <div class="field">
-          <div class="field-label"><span>Number of Modules</span></div>
-          <input type="number" id="numModules2" min="1" max="20" value="2">
+        <div class="field field-compact">
+          <div class="field-row">
+            <div class="field-col">
+              <div class="field-label"><span>Modules</span></div>
+              <input type="number" id="numModules2" min="1" max="20" value="2">
+            </div>
+            <div class="field-col">
+              <div class="field-label"><span>Skill</span><span class="field-hint">0–5</span></div>
+              <input type="number" id="skillLevel2" min="0" max="5" value="5">
+            </div>
+          </div>
         </div>
-        <div class="field">
-          <div class="field-label"><span>Mining Skill Level</span><span class="field-hint">0–5</span></div>
-          <input type="number" id="skillLevel2" min="0" max="5" value="5">
-        </div>
-        <div class="field">
-          <div class="field-label"><span>Implant Bonus</span><span class="field-hint">%</span></div>
-          <input type="number" id="implant2" min="0" max="100" step="0.1" value="0">
-        </div>
-        <div class="field" id="residueField2">
-          <div class="field-label"><span>Residue Probability</span><span class="field-hint">%</span></div>
-          <input type="number" id="residue2" min="0" max="100" step="0.1" value="0">
+        <div class="field field-compact">
+          <div class="field-row">
+            <div class="field-col">
+              <div class="field-label"><span>Implant</span><span class="field-hint">%</span></div>
+              <input type="number" id="implant2" min="0" max="100" step="0.1" value="0">
+            </div>
+            <div class="field-col" id="residueField2">
+              <div class="field-label"><span>Residue</span><span class="field-hint">%</span></div>
+              <input type="number" id="residue2" min="0" max="100" step="0.1" value="0">
+            </div>
+          </div>
         </div>
         <div class="field">
           <div class="field-label"><span id="targetLabel2">Target Volume</span><span class="field-hint" id="targetUnit2">m³</span></div>
@@ -159,7 +185,7 @@
               <div class="result-val" id="r_cycleTime2">—</div>
             </div>
             <div class="result-item">
-              <div class="result-label">Cycles Needed</div>
+              <div class="result-label">Cycles</div>
               <div class="result-val" id="r_cycles2">—</div>
             </div>
             <div class="result-item wide">
@@ -173,6 +199,8 @@
           </div>
         </div>
       </div>
+
+      </div><!-- /compare-wrapper -->
 
       <!-- Compare summary -->
       <div class="badge-compare" id="compareSummary" style="display:none">
