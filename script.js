@@ -4,40 +4,53 @@
 
 // ========== EVE ONLINE GAME DATA ==========
 
-const SHIPS = {
-  ore: [
-    { name: 'Venture', bonus: 0.00, note: 'T1 frigate, +2 turret slots' },
-    { name: 'Prospect', bonus: 0.00, note: 'Covert ops, +2 turrets' },
-    { name: 'Retriever', bonus: 0.00, note: 'T1 barge, single strip' },
-    { name: 'Procurer', bonus: 0.00, note: 'T1 barge, tanky' },
-    { name: 'Covetor', bonus: 0.00, note: 'T1 barge, max yield' },
-    { name: 'Mackinaw', bonus: 0.00, note: 'Exhume, ice bonus' },
-    { name: 'Hulk', bonus: 0.00, note: 'Exhume, max yield' },
-    { name: 'Skiff', bonus: 0.00, note: 'Exhume, max tank' },
-    { name: 'Endurance', bonus: 0.00, note: 'Expedition frigate, ice' },
-    { name: 'Porpoise', bonus: 0.25, note: 'Industrial command, +25% yield' },
-    { name: 'Orca', bonus: 0.25, note: 'Industrial command, +25% yield' },
-    { name: 'Rorqual', bonus: 0.40, note: 'Capital, +40% yield' },
-  ],
-  ice: [
-    { name: 'Venture', bonus: 0.00 },
-    { name: 'Endurance', bonus: 0.00 },
-    { name: 'Procurer', bonus: 0.00 },
-    { name: 'Retriever', bonus: 0.00 },
-    { name: 'Covetor', bonus: 0.00 },
-    { name: 'Mackinaw', bonus: 0.15, note: 'Exhume, +15% ice yield' },
-    { name: 'Hulk', bonus: 0.00 },
-    { name: 'Skiff', bonus: 0.00 },
-    { name: 'Porpoise', bonus: 0.25 },
-    { name: 'Orca', bonus: 0.25 },
-    { name: 'Rorqual', bonus: 0.40 },
-  ],
-  gas: [
-    { name: 'Venture', bonus: 0.00, note: '+2 gas harvester slots' },
-    { name: 'Prospect', bonus: 0.00, note: 'Covert ops gas' },
-    { name: 'Endurance', bonus: 0.00 },
-  ]
-};
+// Unified ship list — semua kapal yang bisa fit mining modules
+// User bebas testing kapal apapun. Bonus 0 = tidak ada bonus yield khusus,
+// tapi kapal tetap bisa dipasangi mining modules di in-game.
+const SHIPS = [
+  // Frigates
+  { name: 'Venture', bonus: 0.00, note: 'Mining frigate, +2 turret slots' },
+  { name: 'Prospect', bonus: 0.00, note: 'Covert ops, gas/ore mining' },
+  { name: 'Endurance', bonus: 0.00, note: 'Expedition frigate, ice bonus' },
+  // Mining Barges
+  { name: 'Procurer', bonus: 0.00, note: 'T1 barge, tanky' },
+  { name: 'Retriever', bonus: 0.00, note: 'T1 barge, large ore hold' },
+  { name: 'Covetor', bonus: 0.00, note: 'T1 barge, max yield' },
+  // Exhumers
+  { name: 'Skiff', bonus: 0.00, note: 'Exhumer, max tank' },
+  { name: 'Mackinaw', bonus: 0.15, note: 'Exhumer, +15% ice yield' },
+  { name: 'Hulk', bonus: 0.00, note: 'Exhumer, max yield (2 strips)' },
+  // Industrial Command
+  { name: 'Porpoise', bonus: 0.25, note: 'Industrial command, +25%' },
+  { name: 'Orca', bonus: 0.25, note: 'Industrial command, +25%' },
+  // Capital
+  { name: 'Rorqual', bonus: 0.40, note: 'Capital, +40%' },
+  // General Purpose (bisa fit mining modules walau tanpa bonus)
+  { name: 'Capsule', bonus: 0.00, note: 'Basic, 1 turret slot' },
+  { name: 'Nereus', bonus: 0.00, note: 'Hauler, can fit mining laser' },
+  { name: 'Iteron Mark V', bonus: 0.00, note: 'Hauler, can fit mining laser' },
+  { name: 'Badger', bonus: 0.00, note: 'Hauler, can fit mining laser' },
+  { name: 'Tayra', bonus: 0.00, note: 'Hauler, can fit mining laser' },
+  { name: 'Miasmos', bonus: 0.00, note: 'Ore hauler, can fit mining laser' },
+  { name: 'Epithal', bonus: 0.00, note: 'Planetary hauler, can fit mining laser' },
+  { name: 'Catalyst', bonus: 0.00, note: 'Destroyer, can fit mining laser' },
+  { name: 'Coercer', bonus: 0.00, note: 'Destroyer, can fit mining laser' },
+  { name: 'Thrasher', bonus: 0.00, note: 'Destroyer, can fit mining laser' },
+  { name: 'Cormorant', bonus: 0.00, note: 'Destroyer, can fit mining laser' },
+  { name: 'Vexor', bonus: 0.00, note: 'Cruiser, can fit mining laser' },
+  { name: 'Osprey', bonus: 0.00, note: 'Cruiser, can fit mining laser' },
+  { name: 'Caracal', bonus: 0.00, note: 'Cruiser, can fit mining laser' },
+  { name: 'Thorax', bonus: 0.00, note: 'Cruiser, can fit mining laser' },
+  { name: 'Drake', bonus: 0.00, note: 'Battlecruiser, can fit mining laser' },
+  { name: 'Myrmidon', bonus: 0.00, note: 'Battlecruiser, can fit mining laser' },
+  { name: 'Prophecy', bonus: 0.00, note: 'Battlecruiser, can fit mining laser' },
+  { name: 'Hurricane', bonus: 0.00, note: 'Battlecruiser, can fit mining laser' },
+  { name: 'Dominix', bonus: 0.00, note: 'Battleship, can fit mining laser' },
+  { name: 'Scorpion', bonus: 0.00, note: 'Battleship, can fit mining laser' },
+  { name: 'Raven', bonus: 0.00, note: 'Battleship, can fit mining laser' },
+  { name: 'Megathron', bonus: 0.00, note: 'Battleship, can fit mining laser' },
+  { name: 'Custom (no bonus)', bonus: 0.00, note: 'Manual — set your own yield' },
+];
 
 const MODULES = {
   ore: [
@@ -169,7 +182,7 @@ function populatePresets(containerId, presets) {
 // ========== UPDATE UI FOR RESOURCE TYPE ==========
 function updateResourceUI() {
   const t = state.resourceType;
-  const ships = SHIPS[t];
+  const ships = SHIPS;
   const modules = MODULES[t];
 
   ['ship1', 'ship2'].forEach(id => populateSelect(id, ships));
@@ -212,7 +225,7 @@ function updateResourceUI() {
 // ========== CALCULATE SETUP ==========
 function calcSetup(n) {
   const t = state.resourceType;
-  const ships = SHIPS[t];
+  const ships = SHIPS;
   const modules = MODULES[t];
 
   const shipIdx = parseInt($(`ship${n}`).value) || 0;
