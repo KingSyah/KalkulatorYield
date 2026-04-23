@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -22,7 +22,12 @@
           <div class="header-sub">Yield · Depletion · Efficiency</div>
         </div>
       </div>
-      <div class="header-ver">v2.1</div>
+      <div class="header-right">
+        <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode">
+          <span class="theme-icon" id="themeIcon">🌙</span>
+        </button>
+        <div class="header-ver">v2.1</div>
+      </div>
     </header>
 
     <!-- MODE TABS -->
@@ -208,9 +213,9 @@
   <!-- FOOTER -->
   <div class="footer">
     <div class="footer-inner">
-      <span class="footer-dot"></span>
-      <span class="footer-text">EVE Mining Calculator — Tranquility Data</span>
-      <span class="footer-dot"></span>
+      <span class="footer-crown">👑</span>
+      <span class="footer-text" id="copyright-text"></span>
+      <span class="footer-crown">👑</span>
     </div>
   </div>
 

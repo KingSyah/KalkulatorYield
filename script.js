@@ -637,6 +637,10 @@ function calculateAll() {
 
 // ========== EVENT LISTENERS ==========
 function init() {
+  // Copyright footer — auto-update year
+  const el = $('copyright-text');
+  if (el) el.textContent = `© ${new Date().getFullYear()} KingSyah · EVE Mining Calculator`;
+
   updateResourceUI();
 
   // Mode tabs
@@ -719,5 +723,33 @@ function init() {
   calculateAll();
 }
 
+// ========== THEME TOGGLE ==========
+function initTheme() {
+  const toggle = $('themeToggle');
+  const icon = $('themeIcon');
+  const html = document.documentElement;
+
+  // Load saved theme or default to dark
+  const saved = localStorage.getItem('eve-calc-theme') || 'dark';
+  html.setAttribute('data-theme', saved);
+  updateThemeIcon(saved);
+
+  toggle.addEventListener('click', () => {
+    const current = html.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('eve-calc-theme', next);
+    updateThemeIcon(next);
+  });
+
+  function updateThemeIcon(theme) {
+    icon.textContent = theme === 'dark' ? '🌙' : '☀️';
+    toggle.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
+  }
+}
+
 // ========== START ==========
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
+  init();
+});
