@@ -5,73 +5,79 @@
 // ========== EVE ONLINE GAME DATA ==========
 
 // Unified ship list — semua kapal yang bisa fit mining modules
-// User bebas testing kapal apapun. Bonus 0 = tidak ada bonus yield khusus,
-// tapi kapal tetap bisa dipasangi mining modules di in-game.
+// category menentukan modul mana yang bisa dipasang:
+//   barge/exhumer → bisa Strip Miner, Ice Harvester, Mining Laser
+//   lainnya → hanya Mining Laser, Gas Harvester
 const SHIPS = [
   // Frigates
-  { name: 'Venture', bonus: 0.00, note: 'Mining frigate, +2 turret slots' },
-  { name: 'Prospect', bonus: 0.00, note: 'Covert ops, gas/ore mining' },
-  { name: 'Endurance', bonus: 0.00, note: 'Expedition frigate, ice bonus' },
+  { name: 'Venture', bonus: 0.00, cat: 'frigate', note: 'Mining frigate, +2 turret slots' },
+  { name: 'Prospect', bonus: 0.00, cat: 'frigate', note: 'Covert ops, gas/ore mining' },
+  { name: 'Endurance', bonus: 0.00, cat: 'frigate', note: 'Expedition frigate, ice bonus' },
   // Mining Barges
-  { name: 'Procurer', bonus: 0.00, note: 'T1 barge, tanky' },
-  { name: 'Retriever', bonus: 0.00, note: 'T1 barge, large ore hold' },
-  { name: 'Covetor', bonus: 0.00, note: 'T1 barge, max yield' },
+  { name: 'Procurer', bonus: 0.00, cat: 'barge', note: 'T1 barge, tanky' },
+  { name: 'Retriever', bonus: 0.00, cat: 'barge', note: 'T1 barge, large ore hold' },
+  { name: 'Covetor', bonus: 0.00, cat: 'barge', note: 'T1 barge, max yield' },
   // Exhumers
-  { name: 'Skiff', bonus: 0.00, note: 'Exhumer, max tank' },
-  { name: 'Mackinaw', bonus: 0.15, note: 'Exhumer, +15% ice yield' },
-  { name: 'Hulk', bonus: 0.00, note: 'Exhumer, max yield (2 strips)' },
+  { name: 'Skiff', bonus: 0.00, cat: 'exhumer', note: 'Exhumer, max tank' },
+  { name: 'Mackinaw', bonus: 0.15, cat: 'exhumer', note: 'Exhumer, +15% ice yield' },
+  { name: 'Hulk', bonus: 0.00, cat: 'exhumer', note: 'Exhumer, max yield (2 strips)' },
   // Industrial Command
-  { name: 'Porpoise', bonus: 0.25, note: 'Industrial command, +25%' },
-  { name: 'Orca', bonus: 0.25, note: 'Industrial command, +25%' },
+  { name: 'Porpoise', bonus: 0.25, cat: 'command', note: 'Industrial command, +25%' },
+  { name: 'Orca', bonus: 0.25, cat: 'command', note: 'Industrial command, +25%' },
   // Capital
-  { name: 'Rorqual', bonus: 0.40, note: 'Capital, +40%' },
-  // General Purpose (bisa fit mining modules walau tanpa bonus)
-  { name: 'Capsule', bonus: 0.00, note: 'Basic, 1 turret slot' },
-  { name: 'Nereus', bonus: 0.00, note: 'Hauler, can fit mining laser' },
-  { name: 'Iteron Mark V', bonus: 0.00, note: 'Hauler, can fit mining laser' },
-  { name: 'Badger', bonus: 0.00, note: 'Hauler, can fit mining laser' },
-  { name: 'Tayra', bonus: 0.00, note: 'Hauler, can fit mining laser' },
-  { name: 'Miasmos', bonus: 0.00, note: 'Ore hauler, can fit mining laser' },
-  { name: 'Epithal', bonus: 0.00, note: 'Planetary hauler, can fit mining laser' },
-  { name: 'Catalyst', bonus: 0.00, note: 'Destroyer, can fit mining laser' },
-  { name: 'Coercer', bonus: 0.00, note: 'Destroyer, can fit mining laser' },
-  { name: 'Thrasher', bonus: 0.00, note: 'Destroyer, can fit mining laser' },
-  { name: 'Cormorant', bonus: 0.00, note: 'Destroyer, can fit mining laser' },
-  { name: 'Vexor', bonus: 0.00, note: 'Cruiser, can fit mining laser' },
-  { name: 'Osprey', bonus: 0.00, note: 'Cruiser, can fit mining laser' },
-  { name: 'Caracal', bonus: 0.00, note: 'Cruiser, can fit mining laser' },
-  { name: 'Thorax', bonus: 0.00, note: 'Cruiser, can fit mining laser' },
-  { name: 'Drake', bonus: 0.00, note: 'Battlecruiser, can fit mining laser' },
-  { name: 'Myrmidon', bonus: 0.00, note: 'Battlecruiser, can fit mining laser' },
-  { name: 'Prophecy', bonus: 0.00, note: 'Battlecruiser, can fit mining laser' },
-  { name: 'Hurricane', bonus: 0.00, note: 'Battlecruiser, can fit mining laser' },
-  { name: 'Dominix', bonus: 0.00, note: 'Battleship, can fit mining laser' },
-  { name: 'Scorpion', bonus: 0.00, note: 'Battleship, can fit mining laser' },
-  { name: 'Raven', bonus: 0.00, note: 'Battleship, can fit mining laser' },
-  { name: 'Megathron', bonus: 0.00, note: 'Battleship, can fit mining laser' },
-  { name: 'Custom (no bonus)', bonus: 0.00, note: 'Manual — set your own yield' },
+  { name: 'Rorqual', bonus: 0.40, cat: 'capital', note: 'Capital, +40%' },
+  // General Purpose (bisa fit mining laser & gas harvester saja)
+  { name: 'Capsule', bonus: 0.00, cat: 'general', note: 'Basic, 1 turret slot' },
+  { name: 'Nereus', bonus: 0.00, cat: 'general', note: 'Hauler, can fit mining laser' },
+  { name: 'Iteron Mark V', bonus: 0.00, cat: 'general', note: 'Hauler, can fit mining laser' },
+  { name: 'Badger', bonus: 0.00, cat: 'general', note: 'Hauler, can fit mining laser' },
+  { name: 'Tayra', bonus: 0.00, cat: 'general', note: 'Hauler, can fit mining laser' },
+  { name: 'Miasmos', bonus: 0.00, cat: 'general', note: 'Ore hauler, can fit mining laser' },
+  { name: 'Epithal', bonus: 0.00, cat: 'general', note: 'Planetary hauler, can fit mining laser' },
+  { name: 'Catalyst', bonus: 0.00, cat: 'general', note: 'Destroyer, can fit mining laser' },
+  { name: 'Coercer', bonus: 0.00, cat: 'general', note: 'Destroyer, can fit mining laser' },
+  { name: 'Thrasher', bonus: 0.00, cat: 'general', note: 'Destroyer, can fit mining laser' },
+  { name: 'Cormorant', bonus: 0.00, cat: 'general', note: 'Destroyer, can fit mining laser' },
+  { name: 'Vexor', bonus: 0.00, cat: 'general', note: 'Cruiser, can fit mining laser' },
+  { name: 'Osprey', bonus: 0.00, cat: 'general', note: 'Cruiser, can fit mining laser' },
+  { name: 'Caracal', bonus: 0.00, cat: 'general', note: 'Cruiser, can fit mining laser' },
+  { name: 'Thorax', bonus: 0.00, cat: 'general', note: 'Cruiser, can fit mining laser' },
+  { name: 'Drake', bonus: 0.00, cat: 'general', note: 'Battlecruiser, can fit mining laser' },
+  { name: 'Myrmidon', bonus: 0.00, cat: 'general', note: 'Battlecruiser, can fit mining laser' },
+  { name: 'Prophecy', bonus: 0.00, cat: 'general', note: 'Battlecruiser, can fit mining laser' },
+  { name: 'Hurricane', bonus: 0.00, cat: 'general', note: 'Battlecruiser, can fit mining laser' },
+  { name: 'Dominix', bonus: 0.00, cat: 'general', note: 'Battleship, can fit mining laser' },
+  { name: 'Scorpion', bonus: 0.00, cat: 'general', note: 'Battleship, can fit mining laser' },
+  { name: 'Raven', bonus: 0.00, cat: 'general', note: 'Battleship, can fit mining laser' },
+  { name: 'Megathron', bonus: 0.00, cat: 'general', note: 'Battleship, can fit mining laser' },
+  { name: 'Custom (no bonus)', bonus: 0.00, cat: 'general', note: 'Manual — set your own yield' },
 ];
+
+// Module slots:
+//   'strip' → hanya barge/exhumer
+//   'turret' → semua kapal
+const BARGE_EXHUMER = ['barge', 'exhumer'];
 
 const MODULES = {
   ore: [
-    { name: 'Mining Laser I', yield: 40, cycle: 60, residue: 0 },
-    { name: 'Mining Laser II', yield: 60, cycle: 60, residue: 0 },
-    { name: 'Modulated Deep Core Miner II', yield: 60, cycle: 60, residue: 33.4 },
-    { name: 'Strip Miner I', yield: 540, cycle: 180, residue: 0 },
-    { name: 'Strip Miner II', yield: 800, cycle: 180, residue: 0 },
-    { name: 'Modulated Strip Miner II', yield: 800, cycle: 180, residue: 33.4 },
-    { name: 'ORE Strip Miner', yield: 900, cycle: 180, residue: 0 },
-    { name: 'Deep Core Mining Laser I', yield: 40, cycle: 60, residue: 0 },
-    { name: 'Deep Core Mining Laser II', yield: 60, cycle: 60, residue: 33.4 },
+    { name: 'Mining Laser I', yield: 40, cycle: 60, residue: 0, slot: 'turret' },
+    { name: 'Mining Laser II', yield: 60, cycle: 60, residue: 0, slot: 'turret' },
+    { name: 'Modulated Deep Core Miner II', yield: 60, cycle: 60, residue: 33.4, slot: 'turret' },
+    { name: 'Deep Core Mining Laser I', yield: 40, cycle: 60, residue: 0, slot: 'turret' },
+    { name: 'Deep Core Mining Laser II', yield: 60, cycle: 60, residue: 33.4, slot: 'turret' },
+    { name: 'Strip Miner I', yield: 540, cycle: 180, residue: 0, slot: 'strip' },
+    { name: 'Strip Miner II', yield: 800, cycle: 180, residue: 0, slot: 'strip' },
+    { name: 'Modulated Strip Miner II', yield: 800, cycle: 180, residue: 33.4, slot: 'strip' },
+    { name: 'ORE Strip Miner', yield: 900, cycle: 180, residue: 0, slot: 'strip' },
   ],
   ice: [
-    { name: 'Ice Harvester I', yield: 1000, cycle: 300, residue: 0 },
-    { name: 'Ice Harvester II', yield: 1000, cycle: 240, residue: 0 },
-    { name: 'ORE Ice Harvester', yield: 1000, cycle: 200, residue: 0 },
+    { name: 'Ice Harvester I', yield: 1000, cycle: 300, residue: 0, slot: 'strip' },
+    { name: 'Ice Harvester II', yield: 1000, cycle: 240, residue: 0, slot: 'strip' },
+    { name: 'ORE Ice Harvester', yield: 1000, cycle: 200, residue: 0, slot: 'strip' },
   ],
   gas: [
-    { name: 'Gas Harvester I', yield: 10, cycle: 30, residue: 0 },
-    { name: 'Gas Harvester II', yield: 20, cycle: 30, residue: 0 },
+    { name: 'Gas Harvester I', yield: 10, cycle: 30, residue: 0, slot: 'turret' },
+    { name: 'Gas Harvester II', yield: 20, cycle: 30, residue: 0, slot: 'turret' },
   ]
 };
 
@@ -179,14 +185,44 @@ function populatePresets(containerId, presets) {
   ).join('');
 }
 
+// ========== FILTER MODULES BY SHIP ==========
+function getFilteredModules(resourceType, shipIdx) {
+  const allMods = MODULES[resourceType];
+  const ship = SHIPS[shipIdx];
+  if (!ship) return allMods;
+  const isBarge = BARGE_EXHUMER.includes(ship.cat);
+  if (isBarge) return allMods; // barge/exhumer bisa semua modul
+  // kapal lain hanya turret modules
+  return allMods.filter(m => m.slot === 'turret');
+}
+
+function updateModulesForShip(n) {
+  const t = state.resourceType;
+  const shipIdx = parseInt($(`ship${n}`).value) || 0;
+  const filtered = getFilteredModules(t, shipIdx);
+  const sel = $(`module${n}`);
+  const prevName = sel.options[sel.selectedIndex]?.text || '';
+  sel.innerHTML = filtered.map((m, i) =>
+    `<option value="${i}">${m.name}${m.slot === 'strip' ? ' ⚓' : ''}</option>`
+  ).join('');
+  // try to keep previous selection
+  const keepIdx = filtered.findIndex(m => m.name === prevName);
+  if (keepIdx >= 0) sel.value = keepIdx;
+  // update residue
+  const mod = filtered[parseInt(sel.value) || 0];
+  const hasResidue = t === 'ore' && mod && mod.residue > 0;
+  $(`residueField${n}`).style.display = hasResidue ? '' : 'none';
+  if (hasResidue) $(`residue${n}`).value = mod.residue;
+  $(`residueResult${n}`).style.display = hasResidue ? '' : 'none';
+}
+
 // ========== UPDATE UI FOR RESOURCE TYPE ==========
 function updateResourceUI() {
   const t = state.resourceType;
-  const ships = SHIPS;
-  const modules = MODULES[t];
 
-  ['ship1', 'ship2'].forEach(id => populateSelect(id, ships));
-  ['module1', 'module2'].forEach(id => populateSelect(id, modules));
+  ['ship1', 'ship2'].forEach(id => populateSelect(id, SHIPS));
+  // Populate modules filtered by current ship selection
+  for (let n = 1; n <= 2; n++) { updateModulesForShip(n); }
   populatePresets('presets1', t === 'ore' ? ORE_PRESETS : t === 'ice' ? ICE_PRESETS : GAS_PRESETS);
   populatePresets('presets2', t === 'ore' ? ORE_PRESETS : t === 'ice' ? ICE_PRESETS : GAS_PRESETS);
 
@@ -202,24 +238,6 @@ function updateResourceUI() {
       $(`targetLabel${n}`).textContent = 'Target Volume';
       $(`targetUnit${n}`).textContent = 'm³';
     }
-    // Residue only for ore with deep core / modulated modules
-    const modIdx = parseInt($(`module${n}`).value) || 0;
-    const mod = modules[modIdx];
-    const hasResidue = t === 'ore' && mod && mod.residue > 0;
-    $(`residueField${n}`).style.display = hasResidue ? '' : 'none';
-    if (hasResidue && parseFloat($(`residue${n}`).value) === 0) {
-      $(`residue${n}`).value = mod.residue;
-    }
-    $(`residueResult${n}`).style.display = hasResidue ? '' : 'none';
-  }
-
-  // Set first module as default and trigger residue
-  for (let n = 1; n <= 2; n++) {
-    const modIdx = parseInt($(`module${n}`).value) || 0;
-    const mod = modules[modIdx];
-    if (mod && mod.residue > 0) {
-      $(`residue${n}`).value = mod.residue;
-    }
   }
 
   calculateAll();
@@ -228,10 +246,10 @@ function updateResourceUI() {
 // ========== CALCULATE SETUP ==========
 function calcSetup(n) {
   const t = state.resourceType;
-  const ships = SHIPS;
-  const modules = MODULES[t];
-
   const shipIdx = parseInt($(`ship${n}`).value) || 0;
+  const modules = getFilteredModules(t, shipIdx);
+  const ships = SHIPS;
+
   const modIdx = parseInt($(`module${n}`).value) || 0;
   const numMod = Math.max(1, parseInt($(`numModules${n}`).value) || 1);
   const skill = Math.min(5, Math.max(0, parseInt($(`skillLevel${n}`).value) || 0));
@@ -437,10 +455,15 @@ function init() {
       if (!el) return;
       const evt = el.tagName === 'SELECT' ? 'change' : 'input';
       el.addEventListener(evt, () => {
+        // Re-filter modules when ship changes
+        if (f === 'ship') {
+          updateModulesForShip(n);
+        }
         // Update residue when module changes
         if (f === 'module') {
           const t = state.resourceType;
-          const modules = MODULES[t];
+          const shipIdx = parseInt($(`ship${n}`).value) || 0;
+          const modules = getFilteredModules(t, shipIdx);
           const modIdx = parseInt(el.value) || 0;
           const mod = modules[modIdx];
           const hasResidue = t === 'ore' && mod && mod.residue > 0;
