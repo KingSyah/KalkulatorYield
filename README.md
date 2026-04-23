@@ -10,7 +10,7 @@ Hitung yield, waktu, dan efisiensi modul tambang di EVE Online.
 
 🪨 **15 Ore** · 🧊 **10 Ice** · ☁️ **19 Gas** — data volume asli
 
-🚢 **12 Kapal** — Venture sampai Rorqual dengan bonus akurat
+🚢 **36 Kapal** — frigate, barges, exhumers, command, haulers, battleships
 
 ⚙️ **14 Modul** — Mining Laser, Strip Miner, Ice/Gas Harvester
 
