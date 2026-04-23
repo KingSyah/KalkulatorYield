@@ -1,236 +1,68 @@
 // ============================================================
-// EVE Online Mining Calculator v2.1
-// Accurate data from Tranquility server (verified)
+// EVE Online Mining Calculator v3.0
+// End-Game Features: Fleet Boosts, Drones, Implants, Time-to-Pop
 // ============================================================
 
 // ========== EVE ONLINE GAME DATA ==========
 
-/**
- * SHIP DATABASE — Verified against EVE Online SDE / Tranquility
- *
- * Each ship stores SEPARATE properties:
- *   miningYieldMult  — multiplier for mining laser / strip miner yield
- *   stripYieldMult   — additional multiplier specific to strip miners
- *   iceYieldMult     — multiplier for ice harvester yield
- *   cycleTimeRed     — cycle time reduction (decimal, e.g. 0.25 = -25%)
- *   iceCycleTimeRed  — cycle time reduction for ice harvesters specifically
- *
- * These are SHIP bonuses only. Skill bonuses are calculated separately.
- * All bonuses are MULTIPLICATIVE with skill and implant bonuses.
- *
- * Sources: EVE Online item database, ship traits, January 2025 patch.
- */
 const SHIPS = [
-  // ── Frigates ──────────────────────────────────────────
-  {
-    name: 'Venture',
-    cat: 'frigate',
-    miningYieldMult: 2.0,    // Role: +100% mining yield
-    stripYieldMult: 1.0,
-    iceYieldMult: 1.0,
-    cycleTimeRed: 0.0,
-    iceCycleTimeRed: 0.0,
-    note: 'Role: +100% mining yield, +2 warp stab'
-  },
-  {
-    name: 'Prospect',
-    cat: 'frigate',
-    miningYieldMult: 1.5,    // Role: +50% mining & gas yield
-    stripYieldMult: 1.0,
-    iceYieldMult: 1.0,
-    cycleTimeRed: 0.0,
-    iceCycleTimeRed: 0.0,
-    note: 'Role: +50% mining/gas yield, covert ops'
-  },
-  {
-    name: 'Endurance',
-    cat: 'ice_frigate',
-    miningYieldMult: 1.0,
-    stripYieldMult: 1.0,
-    iceYieldMult: 1.5,       // Role: +50% ice yield
-    cycleTimeRed: 0.0,
-    iceCycleTimeRed: 0.20,   // Role: -20% ice cycle time
-    note: 'Role: +50% ice yield, -20% ice cycle'
-  },
-
-  // ── Mining Barges ─────────────────────────────────────
-  // Mining Barge skill: +5% mining yield per level, -5% cycle time per level
-  // Ship bonuses are on top of the skill
-  {
-    name: 'Procurer',
-    cat: 'barge',
-    miningYieldMult: 1.0,    // No ship yield bonus (tank-focused)
-    stripYieldMult: 1.0,
-    iceYieldMult: 1.0,
-    cycleTimeRed: 0.0,       // Skill handles cycle reduction
-    iceCycleTimeRed: 0.0,
-    note: 'Mining Barge: +5% yield/lvl, -5% cycle/lvl'
-  },
-  {
-    name: 'Retriever',
-    cat: 'barge',
-    miningYieldMult: 1.5,    // Ship: +50% mining yield
-    stripYieldMult: 1.0,
-    iceYieldMult: 1.0,
-    cycleTimeRed: 0.0,
-    iceCycleTimeRed: 0.0,
-    note: 'Ship: +50% yield. Skill: +5%/lvl, -5%/lvl'
-  },
-  {
-    name: 'Covetor',
-    cat: 'barge',
-    miningYieldMult: 1.25,   // Ship: +25% mining yield
-    stripYieldMult: 1.0,
-    iceYieldMult: 1.0,
-    cycleTimeRed: 0.0,
-    iceCycleTimeRed: 0.0,
-    note: 'Ship: +25% yield. Skill: +5%/lvl, -5%/lvl'
-  },
-
-  // ── Exhumers ──────────────────────────────────────────
-  // Exhumer skill: +5% mining yield per level, -5% cycle time per level
-  {
-    name: 'Skiff',
-    cat: 'exhumer',
-    miningYieldMult: 1.0,    // No ship yield bonus (max tank)
-    stripYieldMult: 1.0,
-    iceYieldMult: 1.0,
-    cycleTimeRed: 0.0,
-    iceCycleTimeRed: 0.0,
-    note: 'Exhumer: +5% yield/lvl, -5% cycle/lvl'
-  },
-  {
-    name: 'Mackinaw',
-    cat: 'exhumer',
-    miningYieldMult: 1.0,
-    stripYieldMult: 1.0,
-    iceYieldMult: 1.15,      // Ship: +15% ice yield
-    cycleTimeRed: 0.0,
-    iceCycleTimeRed: 0.0,    // Skill handles it
-    note: 'Ship: +15% ice yield. Exhumer: +5%/lvl, -5%/lvl'
-  },
-  {
-    name: 'Hulk',
-    cat: 'exhumer',
-    miningYieldMult: 1.0,    // No separate mining bonus
-    stripYieldMult: 1.25,    // Ship: +25% strip miner yield
-    iceYieldMult: 1.0,
-    cycleTimeRed: 0.0,
-    iceCycleTimeRed: 0.0,
-    note: 'Ship: +25% strip yield. Exhumer: +5%/lvl, -5%/lvl'
-  },
-
-  // ── Industrial Command ────────────────────────────────
-  {
-    name: 'Porpoise',
-    cat: 'porpoise',
-    miningYieldMult: 1.0,
-    stripYieldMult: 1.0,
-    iceYieldMult: 1.0,
-    droneYieldMult: 1.25,    // Ship: +25% drone mining yield
-    cycleTimeRed: 0.0,
-    iceCycleTimeRed: 0.0,
-    note: '+25% drone yield. Industrial Command: +3%/lvl'
-  },
-  {
-    name: 'Orca',
-    cat: 'capital_cmd',
-    miningYieldMult: 1.0,
-    stripYieldMult: 1.0,     // Via Industrial Core
-    iceYieldMult: 1.0,
-    droneYieldMult: 1.25,    // Ship: +25% drone mining yield
-    cycleTimeRed: 0.0,
-    iceCycleTimeRed: 0.0,
-    note: '+25% drone yield, strip/ice via Industrial Core'
-  },
-
-  // ── Capital ───────────────────────────────────────────
-  {
-    name: 'Rorqual',
-    cat: 'capital_cmd',
-    miningYieldMult: 1.0,
-    stripYieldMult: 1.0,     // Via Industrial Core
-    iceYieldMult: 1.0,
-    droneYieldMult: 1.50,    // Ship: +50% drone mining yield
-    cycleTimeRed: 0.0,
-    iceCycleTimeRed: 0.0,
-    note: '+50% drone yield, strip/ice via Industrial Core'
-  },
-
-  // ── Custom ────────────────────────────────────────────
-  {
-    name: 'Custom (no bonus)',
-    cat: 'general',
-    miningYieldMult: 1.0,
-    stripYieldMult: 1.0,
-    iceYieldMult: 1.0,
-    cycleTimeRed: 0.0,
-    iceCycleTimeRed: 0.0,
-    note: 'Manual — set your own parameters'
-  },
+  { name: 'Venture',   cat: 'frigate',     miningYieldMult: 2.0,  stripYieldMult: 1.0, iceYieldMult: 1.0,  cycleTimeRed: 0.0, iceCycleTimeRed: 0.0,  note: 'Role: +100% mining yield' },
+  { name: 'Prospect',  cat: 'frigate',     miningYieldMult: 1.5,  stripYieldMult: 1.0, iceYieldMult: 1.0,  cycleTimeRed: 0.0, iceCycleTimeRed: 0.0,  note: 'Role: +50% mining/gas yield' },
+  { name: 'Endurance', cat: 'ice_frigate', miningYieldMult: 1.0,  stripYieldMult: 1.0, iceYieldMult: 1.5,  cycleTimeRed: 0.0, iceCycleTimeRed: 0.20, note: 'Role: +50% ice, -20% ice cycle' },
+  { name: 'Procurer',  cat: 'barge',       miningYieldMult: 1.0,  stripYieldMult: 1.0, iceYieldMult: 1.0,  cycleTimeRed: 0.0, iceCycleTimeRed: 0.0,  note: 'Mining Barge: +5%/lvl yield, -5%/lvl cycle' },
+  { name: 'Retriever', cat: 'barge',       miningYieldMult: 1.5,  stripYieldMult: 1.0, iceYieldMult: 1.0,  cycleTimeRed: 0.0, iceCycleTimeRed: 0.0,  note: 'Ship: +50% yield' },
+  { name: 'Covetor',   cat: 'barge',       miningYieldMult: 1.25, stripYieldMult: 1.0, iceYieldMult: 1.0,  cycleTimeRed: 0.0, iceCycleTimeRed: 0.0,  note: 'Ship: +25% yield' },
+  { name: 'Skiff',     cat: 'exhumer',     miningYieldMult: 1.0,  stripYieldMult: 1.0, iceYieldMult: 1.0,  cycleTimeRed: 0.0, iceCycleTimeRed: 0.0,  note: 'Exhumer: +5%/lvl yield, -5%/lvl cycle' },
+  { name: 'Mackinaw',  cat: 'exhumer',     miningYieldMult: 1.0,  stripYieldMult: 1.0, iceYieldMult: 1.15, cycleTimeRed: 0.0, iceCycleTimeRed: 0.0,  note: 'Ship: +15% ice yield' },
+  { name: 'Hulk',      cat: 'exhumer',     miningYieldMult: 1.0,  stripYieldMult: 1.25,iceYieldMult: 1.0,  cycleTimeRed: 0.0, iceCycleTimeRed: 0.0,  note: 'Ship: +25% strip yield' },
+  { name: 'Porpoise',  cat: 'porpoise',    miningYieldMult: 1.0,  stripYieldMult: 1.0, iceYieldMult: 1.0,  droneYieldMult: 1.25, cycleTimeRed: 0.0, iceCycleTimeRed: 0.0, note: '+25% drone yield' },
+  { name: 'Orca',      cat: 'capital_cmd', miningYieldMult: 1.0,  stripYieldMult: 1.0, iceYieldMult: 1.0,  droneYieldMult: 1.25, cycleTimeRed: 0.0, iceCycleTimeRed: 0.0, note: '+25% drone yield, strip/ice via Core' },
+  { name: 'Rorqual',   cat: 'capital_cmd', miningYieldMult: 1.0,  stripYieldMult: 1.0, iceYieldMult: 1.0,  droneYieldMult: 1.50, cycleTimeRed: 0.0, iceCycleTimeRed: 0.0, note: '+50% drone yield, strip/ice via Core' },
+  { name: 'Custom (no bonus)', cat: 'general', miningYieldMult: 1.0, stripYieldMult: 1.0, iceYieldMult: 1.0, cycleTimeRed: 0.0, iceCycleTimeRed: 0.0, note: 'Manual parameters' },
 ];
 
 const BARGE_EXHUMER = ['barge', 'exhumer'];
 
-/**
- * SKILL BONUSES — Applied separately from ship bonuses.
- * These are MULTIPLICATIVE with ship bonuses.
- *
- * Mining Frigate:  Venture/Prospect only — +100% mining yield (role bonus, flat)
- *                  Endurance uses Expedition Frigate skill (not modeled separately)
- * Mining Barge:    +5% mining yield per level, -5% cycle time per level
- * Exhumer:         +5% mining yield per level, -5% cycle time per level
- * Mining:          +5% mining yield per level (applies to all mining lasers)
- * Ice Harvesting:  -5% cycle time per level (specialization)
- */
-function getSkillBonuses(shipCat, skillLevel, resourceType) {
-  const lvl = Math.max(0, Math.min(5, skillLevel));
+// ========== FLEET BOOST DATA ==========
+// Mining Laser Optimization Burst (Foreman Burst)
+// Source: EVE Online — Mining Foreman Burst effects
+const FLEET_BOOSTS = [
+  { name: 'None',                          cycleRed: 0.00, yieldBonus: 0.00 },
+  { name: 'T1 Bursts (unbonused)',         cycleRed: 0.07, yieldBonus: 0.03 },
+  { name: 'T2 Bursts (unbonused)',         cycleRed: 0.10, yieldBonus: 0.05 },
+  { name: 'T1 Bursts (Porpoise)',          cycleRed: 0.11, yieldBonus: 0.05 },
+  { name: 'T2 Bursts (Porpoise)',          cycleRed: 0.15, yieldBonus: 0.08 },
+  { name: 'T1 Bursts (Orca)',              cycleRed: 0.14, yieldBonus: 0.07 },
+  { name: 'T2 Bursts (Orca)',              cycleRed: 0.20, yieldBonus: 0.10 },
+  { name: 'T1 Bursts (Rorqual)',           cycleRed: 0.17, yieldBonus: 0.09 },
+  { name: 'T2 Bursts (Rorqual)',           cycleRed: 0.25, yieldBonus: 0.13 },
+];
 
-  if (BARGE_EXHUMER.includes(shipCat)) {
-    // Mining Barge or Exhumer skill: +5% yield per level, -5% cycle per level
-    return {
-      yieldMult: 1 + (lvl * 0.05),   // 1.00 to 1.25
-      cycleMult: 1 - (lvl * 0.05),    // 1.00 to 0.75
-    };
-  }
+// ========== IMPLANT / BOOSTER PRESETS ==========
+// Implants and boosters that affect mining yield
+const IMPLANT_PRESETS = [
+  { name: 'None',                   bonus: 0.00  },
+  { name: 'Michi\'s Excavation (1%)', bonus: 0.01 },
+  { name: 'Michi\'s Excavation (3%)', bonus: 0.03 },
+  { name: 'Michi\'s Excavation (5%)', bonus: 0.05 },
+  { name: 'High-grade Michi (7%)',   bonus: 0.07 },
+  { name: 'Mining Laser Upgrade (5%)', bonus: 0.05 },
+  { name: 'Booster: X-Instinct (+3%)', bonus: 0.03 },
+  { name: 'Booster: Strong X-Instinct (+5%)', bonus: 0.05 },
+  { name: 'Custom %',               bonus: 0.00, custom: true },
+];
 
-  // For frigates, general, capital_cmd — Mining skill: +5% yield per level
-  // No cycle time reduction from skills (except ice specialization)
-  return {
-    yieldMult: 1 + (lvl * 0.05),
-    cycleMult: 1.0,  // No cycle reduction for non-barges
-  };
-}
-
-
-/**
- * MINING MODULES — Verified against EVE Online item database.
- *
- * CRITICAL: Only Deep Core and Modulated Deep Core T2 modules have residue.
- * Standard Mining Laser II does NOT have residue.
- * Ice Harvesters do NOT have residue.
- * Gas Harvesters do NOT have residue.
- *
- * Residue mechanics:
- * - Residue probability is FIXED per module (not user-configurable)
- * - When residue fires, it DESTROYS extra ore from the asteroid
- * - It does NOT reduce yield going into cargo
- * - Asteroid depletion = yield × (1 + residue_probability)
- */
+// ========== MINING MODULES ==========
 const MODULES = {
   ore: [
-    // Standard Mining Lasers (turret slot, all ships)
-    { name: 'Mining Laser I',                  yield: 40,  cycle: 60,  residueProb: 0.00, slot: 'turret' },
-    { name: 'Mining Laser II',                 yield: 60,  cycle: 60,  residueProb: 0.00, slot: 'turret' },
-    // Deep Core Mining Lasers (turret slot, for Mercoxit)
-    { name: 'Deep Core Mining Laser I',        yield: 40,  cycle: 60,  residueProb: 0.00, slot: 'turret' },
-    { name: 'Deep Core Mining Laser II',       yield: 60,  cycle: 60,  residueProb: 0.34, slot: 'turret' },
-    { name: 'Modulated Deep Core Miner II',    yield: 60,  cycle: 60,  residueProb: 0.34, slot: 'turret' },
-    // Strip Miners (strip slot, barge/exhumer only)
-    { name: 'Strip Miner I',                   yield: 540, cycle: 180, residueProb: 0.00, slot: 'strip' },
-    { name: 'Modulated Strip Miner II',        yield: 800, cycle: 180, residueProb: 0.34, slot: 'strip' },
-    // Faction
-    { name: 'ORE Strip Miner',                 yield: 900, cycle: 180, residueProb: 0.00, slot: 'strip' },
+    { name: 'Mining Laser I',                yield: 40,  cycle: 60,  residueProb: 0.00, slot: 'turret' },
+    { name: 'Mining Laser II',               yield: 60,  cycle: 60,  residueProb: 0.00, slot: 'turret' },
+    { name: 'Deep Core Mining Laser I',      yield: 40,  cycle: 60,  residueProb: 0.00, slot: 'turret' },
+    { name: 'Deep Core Mining Laser II',     yield: 60,  cycle: 60,  residueProb: 0.34, slot: 'turret' },
+    { name: 'Modulated Deep Core Miner II',  yield: 60,  cycle: 60,  residueProb: 0.34, slot: 'turret' },
+    { name: 'Strip Miner I',                 yield: 540, cycle: 180, residueProb: 0.00, slot: 'strip' },
+    { name: 'Modulated Strip Miner II',      yield: 800, cycle: 180, residueProb: 0.34, slot: 'strip' },
+    { name: 'ORE Strip Miner',               yield: 900, cycle: 180, residueProb: 0.00, slot: 'strip' },
   ],
   ice: [
     { name: 'Ice Harvester I',   yield: 1000, cycle: 300, residueProb: 0.00, slot: 'ice' },
@@ -242,66 +74,47 @@ const MODULES = {
     { name: 'Gas Harvester II', yield: 20, cycle: 30, residueProb: 0.00, slot: 'turret' },
   ],
   drone: [
-    // Mining Drones — yield is per drone per cycle
-    { name: 'Mining Drone I',            yield: 25,  cycle: 60, residueProb: 0.00, slot: 'drone' },
-    { name: 'Mining Drone II',           yield: 33,  cycle: 60, residueProb: 0.00, slot: 'drone' },
-    { name: 'Augmented Mining Drone',    yield: 40,  cycle: 60, residueProb: 0.00, slot: 'drone' },
-    { name: 'Excavator Mining Drone',    yield: 80,  cycle: 60, residueProb: 0.00, slot: 'drone' },
+    { name: 'Mining Drone I',          yield: 25, cycle: 60, residueProb: 0.00, slot: 'drone' },
+    { name: 'Mining Drone II',         yield: 33, cycle: 60, residueProb: 0.00, slot: 'drone' },
+    { name: 'Augmented Mining Drone',  yield: 40, cycle: 60, residueProb: 0.00, slot: 'drone' },
+    { name: 'Excavator Mining Drone',  yield: 80, cycle: 60, residueProb: 0.00, slot: 'drone' },
   ]
 };
 
-// Ore presets — volume per unit in m³
+// ========== DRONE DATA (for the separate drone section) ==========
+const DRONE_TYPES = [
+  { name: 'No drones',               yield: 0,  cycle: 60 },
+  { name: 'Mining Drone I',          yield: 25, cycle: 60 },
+  { name: 'Mining Drone II',         yield: 33, cycle: 60 },
+  { name: 'Augmented Mining Drone',  yield: 40, cycle: 60 },
+  { name: 'Excavator Mining Drone',  yield: 80, cycle: 60 },
+];
+
+// ========== PRESETS ==========
 const ORE_PRESETS = [
-  { name: 'Veldspar',       vol: 0.1  },
-  { name: 'Scordite',       vol: 0.15 },
-  { name: 'Pyroxeres',      vol: 0.3  },
-  { name: 'Plagioclase',    vol: 0.35 },
-  { name: 'Omber',          vol: 0.6  },
-  { name: 'Kernite',        vol: 1.2  },
-  { name: 'Jaspet',         vol: 2.0  },
-  { name: 'Hemorphite',     vol: 3.0  },
-  { name: 'Hedbergite',     vol: 3.0  },
-  { name: 'Gneiss',         vol: 5.0  },
-  { name: 'Dark Ochre',     vol: 8.0  },
-  { name: 'Crokite',        vol: 16.0 },
-  { name: 'Bistot',         vol: 16.0 },
-  { name: 'Arkonor',        vol: 16.0 },
-  { name: 'Mercoxit',       vol: 40.0 },
+  { name: 'Veldspar', vol: 0.1 }, { name: 'Scordite', vol: 0.15 }, { name: 'Pyroxeres', vol: 0.3 },
+  { name: 'Plagioclase', vol: 0.35 }, { name: 'Omber', vol: 0.6 }, { name: 'Kernite', vol: 1.2 },
+  { name: 'Jaspet', vol: 2.0 }, { name: 'Hemorphite', vol: 3.0 }, { name: 'Hedbergite', vol: 3.0 },
+  { name: 'Gneiss', vol: 5.0 }, { name: 'Dark Ochre', vol: 8.0 }, { name: 'Crokite', vol: 16.0 },
+  { name: 'Bistot', vol: 16.0 }, { name: 'Arkonor', vol: 16.0 }, { name: 'Mercoxit', vol: 40.0 },
 ];
-
 const ICE_PRESETS = [
-  { name: 'White Glaze',          vol: 1000 },
-  { name: 'Blue Ice',             vol: 1000 },
-  { name: 'Clear Icicle',         vol: 1000 },
-  { name: 'Glacial Mass',         vol: 1000 },
-  { name: 'Smooth Glacial Mass',  vol: 1000 },
-  { name: 'Enriched Clear Icicle',vol: 1000 },
-  { name: 'Thick Blue Ice',       vol: 1000 },
-  { name: 'Pristine White Glaze', vol: 1000 },
-  { name: 'Gelidus',              vol: 1000 },
-  { name: 'Krystallos',           vol: 1000 },
+  { name: 'White Glaze', vol: 1000 }, { name: 'Blue Ice', vol: 1000 }, { name: 'Clear Icicle', vol: 1000 },
+  { name: 'Glacial Mass', vol: 1000 }, { name: 'Smooth Glacial Mass', vol: 1000 },
+  { name: 'Enriched Clear Icicle', vol: 1000 }, { name: 'Thick Blue Ice', vol: 1000 },
+  { name: 'Pristine White Glaze', vol: 1000 }, { name: 'Gelidus', vol: 1000 }, { name: 'Krystallos', vol: 1000 },
 ];
-
 const GAS_PRESETS = [
-  { name: 'Cytoserocin',           unitSize: 5  },
-  { name: 'Golden Cytoserocin',    unitSize: 10 },
-  { name: 'Amber Cytoserocin',     unitSize: 5  },
-  { name: 'Azure Cytoserocin',     unitSize: 5  },
-  { name: 'Celadon Cytoserocin',   unitSize: 5  },
-  { name: 'Emerald Cytoserocin',   unitSize: 5  },
-  { name: 'Lime Cytoserocin',      unitSize: 5  },
-  { name: 'Malachite Cytoserocin', unitSize: 5  },
-  { name: 'Vermillion Cytoserocin',unitSize: 5  },
-  { name: 'Viridian Cytoserocin',  unitSize: 5  },
-  { name: 'Fullerite-C28',         unitSize: 1  },
-  { name: 'Fullerite-C32',         unitSize: 1  },
-  { name: 'Fullerite-C320',        unitSize: 1  },
-  { name: 'Fullerite-C50',         unitSize: 1  },
-  { name: 'Fullerite-C540',        unitSize: 1  },
-  { name: 'Fullerite-C60',         unitSize: 1  },
-  { name: 'Fullerite-C70',         unitSize: 1  },
-  { name: 'Fullerite-C72',         unitSize: 1  },
-  { name: 'Fullerite-C84',         unitSize: 1  },
+  { name: 'Cytoserocin', unitSize: 5 }, { name: 'Golden Cytoserocin', unitSize: 10 },
+  { name: 'Amber Cytoserocin', unitSize: 5 }, { name: 'Azure Cytoserocin', unitSize: 5 },
+  { name: 'Celadon Cytoserocin', unitSize: 5 }, { name: 'Emerald Cytoserocin', unitSize: 5 },
+  { name: 'Lime Cytoserocin', unitSize: 5 }, { name: 'Malachite Cytoserocin', unitSize: 5 },
+  { name: 'Vermillion Cytoserocin', unitSize: 5 }, { name: 'Viridian Cytoserocin', unitSize: 5 },
+  { name: 'Fullerite-C28', unitSize: 1 }, { name: 'Fullerite-C32', unitSize: 1 },
+  { name: 'Fullerite-C320', unitSize: 1 }, { name: 'Fullerite-C50', unitSize: 1 },
+  { name: 'Fullerite-C540', unitSize: 1 }, { name: 'Fullerite-C60', unitSize: 1 },
+  { name: 'Fullerite-C70', unitSize: 1 }, { name: 'Fullerite-C72', unitSize: 1 },
+  { name: 'Fullerite-C84', unitSize: 1 },
 ];
 
 
@@ -309,10 +122,6 @@ const GAS_PRESETS = [
 const state = {
   mode: 'single',
   resourceType: 'ore',
-  setups: {
-    1: { ship: '', module: '', numModules: 2, skill: 5, implant: 0, target: 10000 },
-    2: { ship: '', module: '', numModules: 2, skill: 5, implant: 0, target: 10000 },
-  }
 };
 
 
@@ -326,11 +135,7 @@ function formatTime(seconds) {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
   const s = Math.floor(seconds % 60);
-  if (h > 24) {
-    const d = Math.floor(h / 24);
-    const rh = h % 24;
-    return `${d}d ${rh}h ${m}m`;
-  }
+  if (h > 24) { const d = Math.floor(h / 24); return `${d}d ${h % 24}h ${m}m`; }
   if (h > 0) return `${h}h ${m}m ${s}s`;
   return `${m}m ${s}s`;
 }
@@ -350,9 +155,29 @@ function populateSelect(selId, items) {
 }
 
 function populatePresets(containerId, presets) {
-  const container = $(containerId);
-  container.innerHTML = presets.map((p, i) =>
+  $(containerId).innerHTML = presets.map((p, i) =>
     `<button class="chip" data-idx="${i}">${p.name}</button>`
+  ).join('');
+}
+
+function populateDroneSelect(selId) {
+  const sel = $(selId);
+  sel.innerHTML = DRONE_TYPES.map((d, i) =>
+    `<option value="${i}">${d.name}${d.yield > 0 ? ` (${d.yield} m³/cycle)` : ''}</option>`
+  ).join('');
+}
+
+function populateFleetBoost(selId) {
+  const sel = $(selId);
+  sel.innerHTML = FLEET_BOOSTS.map((b, i) =>
+    `<option value="${i}">${b.name}${b.cycleRed > 0 ? ` (-${(b.cycleRed * 100).toFixed(0)}% cycle, +${(b.yieldBonus * 100).toFixed(0)}% yield)` : ''}</option>`
+  ).join('');
+}
+
+function populateImplantPreset(selId) {
+  const sel = $(selId);
+  sel.innerHTML = IMPLANT_PRESETS.map((p, i) =>
+    `<option value="${i}">${p.name}${p.bonus > 0 ? ` (+${(p.bonus * 100).toFixed(0)}%)` : ''}</option>`
   ).join('');
 }
 
@@ -364,28 +189,10 @@ function getFilteredModules(resourceType, shipIdx) {
   const ship = SHIPS[shipIdx];
   if (!ship) return allMods;
   const cat = ship.cat;
-
-  // Barge/Exhumer: can fit all ore/ice modules
   if (BARGE_EXHUMER.includes(cat)) return allMods;
-
-  // Capital command: strip + ice via Industrial Core, also drones
-  if (cat === 'capital_cmd') {
-    if (resourceType === 'drone') return allMods;
-    return allMods.filter(m => m.slot === 'strip' || m.slot === 'ice');
-  }
-
-  // Endurance (ice_frigate): turret + ice
-  if (cat === 'ice_frigate') {
-    return allMods.filter(m => m.slot === 'turret' || m.slot === 'ice');
-  }
-
-  // Porpoise: drone mining only
-  if (cat === 'porpoise') {
-    if (resourceType === 'drone') return allMods;
-    return [];
-  }
-
-  // Frigate, general: turret modules only (mining lasers, gas harvesters)
+  if (cat === 'capital_cmd') return resourceType === 'drone' ? allMods : allMods.filter(m => m.slot === 'strip' || m.slot === 'ice');
+  if (cat === 'ice_frigate') return allMods.filter(m => m.slot === 'turret' || m.slot === 'ice');
+  if (cat === 'porpoise') return resourceType === 'drone' ? allMods : [];
   return allMods.filter(m => m.slot === 'turret');
 }
 
@@ -395,73 +202,47 @@ function updateModulesForShip(n) {
   const filtered = getFilteredModules(t, shipIdx);
   const sel = $(`module${n}`);
   const prevName = sel.options[sel.selectedIndex]?.text?.split(' — ')[0] || '';
-
-  if (filtered.length === 0) {
-    sel.innerHTML = '<option value="0">No modules available</option>';
-    $(`depletionResult${n}`).style.display = 'none';
-    return;
-  }
-
-  sel.innerHTML = filtered.map((m, i) =>
-    `<option value="${i}">${m.name}${m.slot === 'strip' || m.slot === 'ice' ? ' ⚓' : ''}</option>`
-  ).join('');
-
+  if (!filtered.length) { sel.innerHTML = '<option>No modules</option>'; $(`depletionResult${n}`).style.display = 'none'; return; }
+  sel.innerHTML = filtered.map((m, i) => `<option value="${i}">${m.name}${m.slot === 'strip' || m.slot === 'ice' ? ' ⚓' : ''}</option>`).join('');
   const keepIdx = filtered.findIndex(m => m.name === prevName);
   if (keepIdx >= 0) sel.value = keepIdx;
-
   const mod = filtered[parseInt(sel.value) || 0];
-  const hasResidue = mod && mod.residueProb > 0;
-  $(`depletionResult${n}`).style.display = hasResidue ? '' : 'none';
+  $(`depletionResult${n}`).style.display = (mod && mod.residueProb > 0) ? '' : 'none';
 }
 
 
 // ========== UPDATE UI FOR RESOURCE TYPE ==========
 function updateResourceUI() {
   const t = state.resourceType;
-
   ['ship1', 'ship2'].forEach(id => populateSelect(id, SHIPS));
-  for (let n = 1; n <= 2; n++) { updateModulesForShip(n); }
-
+  for (let n = 1; n <= 2; n++) {
+    updateModulesForShip(n);
+    populateDroneSelect(`droneType${n}`);
+    populateFleetBoost(`fleetBoost${n}`);
+    populateImplantPreset(`implantPreset${n}`);
+  }
   const presets = t === 'ore' ? ORE_PRESETS : t === 'ice' ? ICE_PRESETS : t === 'gas' ? GAS_PRESETS : [];
   populatePresets('presets1', presets);
   populatePresets('presets2', presets);
-
   for (let n = 1; n <= 2; n++) {
-    if (t === 'gas') {
-      $(`targetLabel${n}`).textContent = 'Target Amount';
-      $(`targetUnit${n}`).textContent = 'units';
-    } else if (t === 'drone') {
-      $(`targetLabel${n}`).textContent = 'Target Vol';
-      $(`targetUnit${n}`).textContent = 'm³';
-    } else {
-      $(`targetLabel${n}`).textContent = 'Target Vol';
-      $(`targetUnit${n}`).textContent = 'm³';
-    }
+    $(`targetLabel${n}`).textContent = t === 'gas' ? 'Target Amount' : 'Target Vol';
+    $(`targetUnit${n}`).textContent = t === 'gas' ? 'units' : 'm³';
   }
-
   calculateAll();
 }
 
 
+// ========== SKILL BONUSES ==========
+function getSkillBonuses(shipCat, skillLevel) {
+  const lvl = Math.max(0, Math.min(5, skillLevel));
+  if (BARGE_EXHUMER.includes(shipCat)) {
+    return { yieldMult: 1 + (lvl * 0.05), cycleMult: 1 - (lvl * 0.05) };
+  }
+  return { yieldMult: 1 + (lvl * 0.05), cycleMult: 1.0 };
+}
+
+
 // ========== CORE CALCULATION ==========
-/**
- * Calculate mining setup results with CORRECT EVE mechanics.
- *
- * BONUS STACKING (multiplicative):
- *   Effective Yield = BaseYield × ShipMult × SkillMult × ImplantMult
- *
- * For ore mining:
- *   ShipMult = miningYieldMult × stripYieldMult (if strip miner)
- *   SkillMult = 1 + (MiningBarge_lvl × 0.05) for barges/exhumers
- *             = 1 + (Mining_lvl × 0.05) for others
- *
- * Cycle time:
- *   Effective Cycle = BaseCycle × (1 - cycleTimeRed_ship) × SkillCycleMult
- *
- * Residue (only on Deep Core / Modulated T2 modules):
- *   Does NOT reduce cargo yield
- *   Asteroid depletion per cycle = yield × (1 + residue_probability)
- */
 function calcSetup(n) {
   const t = state.resourceType;
   const shipIdx = parseInt($(`ship${n}`).value) || 0;
@@ -471,63 +252,77 @@ function calcSetup(n) {
   const modIdx = parseInt($(`module${n}`).value) || 0;
   const numMod = Math.max(1, parseInt($(`numModules${n}`).value) || 1);
   const skill = Math.min(5, Math.max(0, parseInt($(`skillLevel${n}`).value) || 0));
-  const implant = Math.max(0, parseFloat($(`implant${n}`).value) || 0) / 100;
   const target = Math.max(1, parseFloat($(`target${n}`).value) || 1);
+  const asteroidSize = parseFloat($(`asteroidSize${n}`).value) || 0;
 
   const ship = SHIPS[shipIdx];
   const mod = modules[modIdx];
   if (!mod) return null;
 
+  // ── Implant / Booster ─────────────────────────────────
+  const implantIdx = parseInt($(`implantPreset${n}`).value) || 0;
+  const implantPreset = IMPLANT_PRESETS[implantIdx];
+  let implantMult = 1.0;
+  if (implantPreset && !implantPreset.custom) {
+    implantMult = 1 + (implantPreset.bonus || 0);
+  }
+
+  // ── Fleet Boost ───────────────────────────────────────
+  const boostIdx = parseInt($(`fleetBoost${n}`).value) || 0;
+  const boost = FLEET_BOOSTS[boostIdx];
+  const fleetCycleRed = boost ? boost.cycleRed : 0;
+  const fleetYieldBonus = boost ? boost.yieldBonus : 0;
+
   // ── Ship bonuses ──────────────────────────────────────
   let shipYieldMult = 1.0;
   let shipCycleRed = 0.0;
-
   if (t === 'ore') {
     shipYieldMult = (ship.miningYieldMult || 1.0);
-    // Strip miners get additional strip-specific bonus
-    if (mod.slot === 'strip') {
-      shipYieldMult *= (ship.stripYieldMult || 1.0);
-    }
+    if (mod.slot === 'strip') shipYieldMult *= (ship.stripYieldMult || 1.0);
     shipCycleRed = ship.cycleTimeRed || 0.0;
   } else if (t === 'ice') {
     shipYieldMult = (ship.iceYieldMult || 1.0);
     shipCycleRed = ship.iceCycleTimeRed || 0.0;
   } else if (t === 'gas') {
     shipYieldMult = (ship.miningYieldMult || 1.0);
-    shipCycleRed = 0.0;
   } else if (t === 'drone') {
     shipYieldMult = (ship.droneYieldMult || 1.0);
-    shipCycleRed = 0.0;
   }
 
-  // ── Skill bonuses (separate from ship) ────────────────
-  const skillBonuses = getSkillBonuses(ship ? ship.cat : 'general', skill, t);
-  const skillYieldMult = skillBonuses.yieldMult;
-  const skillCycleMult = skillBonuses.cycleMult;
+  // ── Skill bonuses ─────────────────────────────────────
+  const skillBonuses = getSkillBonuses(ship ? ship.cat : 'general', skill);
 
-  // ── Implant bonus ─────────────────────────────────────
-  const implantMult = 1 + implant;
+  // ── Module yield per cycle ────────────────────────────
+  const effectiveYieldPerModule = mod.yield * shipYieldMult * skillBonuses.yieldMult * implantMult * (1 + fleetYieldBonus);
+  const totalModuleYieldPerCycle = effectiveYieldPerModule * numMod;
 
-  // ── Effective yield per module per cycle ───────────────
-  const effectiveYieldPerModule = mod.yield * shipYieldMult * skillYieldMult * implantMult;
-
-  // Total yield per cycle (all modules)
-  const totalYieldPerCycle = effectiveYieldPerModule * numMod;
-
-  // ── Effective cycle time ──────────────────────────────
-  // Ship cycle reduction is applied first, then skill reduction
+  // ── Cycle time (ship + skill + fleet boost) ───────────
+  // Fleet boost reduction is applied AFTER ship+skill
   const baseCycle = mod.cycle;
-  const effectiveCycleTime = baseCycle * (1 - shipCycleRed) * skillCycleMult;
+  const cycleAfterShipSkill = baseCycle * (1 - shipCycleRed) * skillBonuses.cycleMult;
+  const effectiveCycleTime = cycleAfterShipSkill * (1 - fleetCycleRed);
 
-  // ── Hourly metrics ────────────────────────────────────
+  // ── Module hourly metrics ─────────────────────────────
   const cyclesPerHour = 3600 / effectiveCycleTime;
-  const yieldPerHour = totalYieldPerCycle * cyclesPerHour;
+  const moduleYieldPerHour = totalModuleYieldPerCycle * cyclesPerHour;
+
+  // ── Drone yield (separate calculation) ────────────────
+  const droneIdx = parseInt($(`droneType${n}`).value) || 0;
+  const numDrones = Math.max(0, Math.min(5, parseInt($(`numDrones${n}`).value) || 0));
+  const droneType = DRONE_TYPES[droneIdx];
+  let droneYieldPerHour = 0;
+  if (droneType && droneType.yield > 0 && numDrones > 0) {
+    const droneShipMult = (ship.droneYieldMult || 1.0);
+    const droneCyclePerHour = 3600 / droneType.cycle;
+    droneYieldPerHour = droneType.yield * numDrones * droneShipMult * skillBonuses.yieldMult * droneCyclePerHour;
+  }
+
+  // ── Total yield (modules + drones) ────────────────────
+  const totalYieldPerHour = moduleYieldPerHour + droneYieldPerHour;
 
   // ── Residue / Asteroid Depletion ──────────────────────
   const residueProb = mod.residueProb || 0;
-  // Expected asteroid depletion per cycle = yield × (1 + residue_probability)
-  const depletionPerCycle = totalYieldPerCycle * (1 + residueProb);
-  // Asteroid depletion per hour
+  const depletionPerCycle = totalModuleYieldPerCycle * (1 + residueProb);
   const depletionPerHour = depletionPerCycle * cyclesPerHour;
 
   // ── Target calculation ────────────────────────────────
@@ -535,31 +330,38 @@ function calcSetup(n) {
   if (t === 'gas') {
     const chipActive = qsa(`#presets${n} .chip.active`);
     if (chipActive.length > 0) {
-      const idx = parseInt(chipActive[0].dataset.idx);
-      targetM3 = target * (GAS_PRESETS[idx]?.unitSize || 5);
+      targetM3 = target * (GAS_PRESETS[parseInt(chipActive[0].dataset.idx)]?.unitSize || 5);
     } else {
       targetM3 = target * 5;
     }
   }
 
-  // Cycles to fill target (based on yield, NOT depletion)
-  const totalCycles = totalYieldPerCycle > 0 ? Math.ceil(targetM3 / totalYieldPerCycle) : Infinity;
+  // Cycles to fill target (module yield only, drones are bonus)
+  const totalCycles = totalModuleYieldPerCycle > 0 ? Math.ceil(targetM3 / totalModuleYieldPerCycle) : Infinity;
   const totalTime = totalCycles === Infinity ? Infinity : totalCycles * effectiveCycleTime;
-  const totalDepleted = totalCycles === Infinity ? Infinity : depletionPerCycle * totalCycles;
+
+  // ── Time-to-Pop (asteroid depletion predictor) ────────
+  let timeToPop = null;
+  if (asteroidSize > 0 && depletionPerHour > 0) {
+    // How long until the asteroid is completely depleted
+    // If no residue, depletion = yield. If residue, depletion = yield × (1 + residueProb)
+    timeToPop = (asteroidSize / depletionPerHour) * 3600; // in seconds
+  }
 
   return {
-    yieldPerCycle: totalYieldPerCycle,
-    yieldPerHour,
+    yieldPerCycle: totalModuleYieldPerCycle,
+    moduleYieldPerHour,
+    droneYieldPerHour,
+    totalYieldPerHour,
     cycleTime: effectiveCycleTime,
     totalCycles,
     totalTime,
     depletionPerCycle,
     depletionPerHour,
-    totalDepleted,
     residueProb,
     hasResidue: residueProb > 0,
-    shipYieldMult,
-    skillYieldMult,
+    timeToPop,
+    hasTimeToPop: asteroidSize > 0,
   };
 }
 
@@ -567,7 +369,7 @@ function calcSetup(n) {
 // ========== UPDATE RESULTS DISPLAY ==========
 function updateResults(n, data) {
   if (!data) {
-    ['yieldCycle', 'yieldHour', 'cycleTime', 'cycles', 'totalTime', 'depletion'].forEach(k => {
+    ['yieldCycle', 'droneYield', 'totalYieldHour', 'cycleTime', 'cycles', 'totalTime', 'depletion', 'timetopop'].forEach(k => {
       const el = $(`r_${k}${n}`);
       if (el) el.textContent = '—';
     });
@@ -575,16 +377,25 @@ function updateResults(n, data) {
   }
 
   $(`r_yieldCycle${n}`).textContent = `${formatNum(data.yieldPerCycle)} m³`;
-  $(`r_yieldHour${n}`).textContent = `${formatNum(data.yieldPerHour)} m³`;
+  $(`r_droneYield${n}`).textContent = data.droneYieldPerHour > 0 ? `${formatNum(data.droneYieldPerHour)} m³/hr` : '—';
+  $(`r_totalYieldHour${n}`).textContent = `${formatNum(data.totalYieldPerHour)} m³`;
   $(`r_cycleTime${n}`).textContent = formatTime(data.cycleTime);
   $(`r_cycles${n}`).textContent = data.totalCycles === Infinity ? '∞' : formatNum(data.totalCycles, 0);
   $(`r_totalTime${n}`).textContent = formatTime(data.totalTime);
 
-  // Asteroid Depletion / Hour
+  // Asteroid Depletion
   if (data.hasResidue) {
     const pct = (data.residueProb * 100).toFixed(0);
-    $(`r_depletion${n}`).textContent =
-      `${formatNum(data.depletionPerHour)} m³/hr (+${pct}% extra asteroid damage)`;
+    $(`r_depletion${n}`).textContent = `${formatNum(data.depletionPerHour)} m³/hr (+${pct}% extra)`;
+  }
+
+  // Time-to-Pop
+  const ttpResult = $(`timetopopResult${n}`);
+  if (data.hasTimeToPop && data.timeToPop !== null) {
+    ttpResult.style.display = '';
+    $(`r_timetopop${n}`).textContent = formatTime(data.timeToPop);
+  } else {
+    ttpResult.style.display = 'none';
   }
 }
 
@@ -594,22 +405,16 @@ function updateCompare(data1, data2) {
   const summary = $('compareSummary');
   if (state.mode !== 'compare') { summary.style.display = 'none'; return; }
   summary.style.display = '';
-
   if (!data1 || !data2) {
     $('compareWinner').textContent = 'Enter data for both setups';
     $('compareDiff').textContent = '';
-    $('barA').style.width = '0%';
-    $('barB').style.width = '0%';
+    $('barA').style.width = '0%'; $('barB').style.width = '0%';
     return;
   }
-
-  const yph1 = data1.yieldPerHour;
-  const yph2 = data2.yieldPerHour;
+  const yph1 = data1.totalYieldPerHour, yph2 = data2.totalYieldPerHour;
   const max = Math.max(yph1, yph2, 1);
-
   $('barA').style.width = `${(yph1 / max) * 100}%`;
   $('barB').style.width = `${(yph2 / max) * 100}%`;
-
   if (Math.abs(yph1 - yph2) < 0.01) {
     $('compareWinner').textContent = '⚖️ Both setups are equal';
     $('compareDiff').textContent = '';
@@ -627,17 +432,14 @@ function updateCompare(data1, data2) {
 
 // ========== CALCULATE ALL ==========
 function calculateAll() {
-  const d1 = calcSetup(1);
-  const d2 = calcSetup(2);
-  updateResults(1, d1);
-  updateResults(2, d2);
-  updateCompare(d1, d2);
+  updateResults(1, calcSetup(1));
+  updateResults(2, calcSetup(2));
+  updateCompare(calcSetup(1), calcSetup(2));
 }
 
 
-// ========== EVENT LISTENERS ==========
+// ========== INIT ==========
 function init() {
-  // Copyright footer — auto-update year
   const el = $('copyright-text');
   if (el) el.textContent = `© ${new Date().getFullYear()} KingSyah · EVE Mining Calculator`;
 
@@ -649,28 +451,14 @@ function init() {
       qsa('.tab').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       state.mode = btn.dataset.mode;
-
-      const app = $('app');
-      const s2 = $('setup2');
-      const vs = $('vsDivider');
-      const summary = $('compareSummary');
-
-      if (state.mode === 'compare') {
-        app.classList.add('compare-active');
-        s2.style.display = '';
-        vs.style.display = '';
-        summary.style.display = '';
-      } else {
-        app.classList.remove('compare-active');
-        s2.style.display = 'none';
-        vs.style.display = 'none';
-        summary.style.display = 'none';
-      }
+      const app = $('app'), s2 = $('setup2'), vs = $('vsDivider'), sum = $('compareSummary');
+      if (state.mode === 'compare') { app.classList.add('compare-active'); s2.style.display = ''; vs.style.display = ''; sum.style.display = ''; }
+      else { app.classList.remove('compare-active'); s2.style.display = 'none'; vs.style.display = 'none'; sum.style.display = 'none'; }
       calculateAll();
     });
   });
 
-  // Resource type segment
+  // Resource type
   qsa('.seg-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       qsa('.seg-btn').forEach(b => b.classList.remove('active'));
@@ -687,28 +475,23 @@ function init() {
       if (!chip) return;
       qsa(`#presets${n} .chip`).forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
-
-      const idx = parseInt(chip.dataset.idx);
-      const t = state.resourceType;
-      if (t === 'gas') {
-        const preset = GAS_PRESETS[idx];
-        $(`target${n}`).value = preset.unitSize * 100;
+      if (state.resourceType === 'gas') {
+        $(`target${n}`).value = GAS_PRESETS[parseInt(chip.dataset.idx)]?.unitSize * 100 || 500;
       }
       calculateAll();
     });
   }
 
-  // Input listeners
+  // All input listeners
+  const allFields = ['ship', 'module', 'numModules', 'skillLevel', 'target', 'asteroidSize',
+                     'droneType', 'numDrones', 'fleetBoost', 'implantPreset'];
   for (let n = 1; n <= 2; n++) {
-    const fields = ['ship', 'module', 'numModules', 'skillLevel', 'implant', 'target'];
-    fields.forEach(f => {
+    allFields.forEach(f => {
       const el = $(`${f}${n}`);
       if (!el) return;
       const evt = el.tagName === 'SELECT' ? 'change' : 'input';
       el.addEventListener(evt, () => {
-        if (f === 'ship' || f === 'module') {
-          updateModulesForShip(n);
-        }
+        if (f === 'ship' || f === 'module') updateModulesForShip(n);
         calculateAll();
       });
     });
@@ -719,29 +502,21 @@ function init() {
     $(`ship${n}`).value = '0';
     $(`module${n}`).value = '0';
   }
-
   calculateAll();
 }
 
 // ========== THEME TOGGLE ==========
 function initTheme() {
-  const toggle = $('themeToggle');
-  const icon = $('themeIcon');
-  const html = document.documentElement;
-
-  // Load saved theme or default to dark
+  const toggle = $('themeToggle'), icon = $('themeIcon'), html = document.documentElement;
   const saved = localStorage.getItem('eve-calc-theme') || 'dark';
   html.setAttribute('data-theme', saved);
   updateThemeIcon(saved);
-
   toggle.addEventListener('click', () => {
-    const current = html.getAttribute('data-theme');
-    const next = current === 'dark' ? 'light' : 'dark';
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     html.setAttribute('data-theme', next);
     localStorage.setItem('eve-calc-theme', next);
     updateThemeIcon(next);
   });
-
   function updateThemeIcon(theme) {
     icon.textContent = theme === 'dark' ? '🌙' : '☀️';
     toggle.title = theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode';
@@ -749,7 +524,4 @@ function initTheme() {
 }
 
 // ========== START ==========
-document.addEventListener('DOMContentLoaded', () => {
-  initTheme();
-  init();
-});
+document.addEventListener('DOMContentLoaded', () => { initTheme(); init(); });

@@ -19,14 +19,14 @@
         <div class="header-icon">⛏️</div>
         <div>
           <h1>EVE MINING CALC</h1>
-          <div class="header-sub">Yield · Depletion · Efficiency</div>
+          <div class="header-sub">Yield · Depletion · Fleet · Drones</div>
         </div>
       </div>
       <div class="header-right">
         <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode">
           <span class="theme-icon" id="themeIcon">🌙</span>
         </button>
-        <div class="header-ver">v2.1</div>
+        <div class="header-ver">v3.0</div>
       </div>
     </header>
 
@@ -48,13 +48,16 @@
     <div id="cardContainer">
       <div class="compare-wrapper" id="compareWrapper">
 
-        <!-- Setup 1 -->
+        <!-- ==================== SETUP 1 ==================== -->
         <div class="card" id="setup1">
           <div class="card-title">
             <div class="card-num">01</div>
             <h2>Setup 1</h2>
           </div>
+
           <div class="chips" id="presets1"></div>
+
+          <!-- Ship & Module -->
           <div class="field">
             <div class="field-label"><span>Ship</span></div>
             <select id="ship1"></select>
@@ -63,6 +66,8 @@
             <div class="field-label"><span>Mining Module</span></div>
             <select id="module1"></select>
           </div>
+
+          <!-- Modules + Skill -->
           <div class="field field-compact">
             <div class="field-row">
               <div class="field-col">
@@ -75,45 +80,83 @@
               </div>
             </div>
           </div>
+
+          <!-- Implant / Booster -->
+          <div class="field">
+            <div class="field-label"><span>Implant / Booster</span></div>
+            <select id="implantPreset1"></select>
+          </div>
+
+          <!-- Fleet Boost -->
+          <div class="field">
+            <div class="field-label"><span>🚀 Fleet Boost</span></div>
+            <select id="fleetBoost1"></select>
+          </div>
+
+          <!-- Drone Mining Section -->
+          <div class="section-divider"><span>🤖 Drone Mining</span></div>
           <div class="field field-compact">
             <div class="field-row">
               <div class="field-col">
-                <div class="field-label"><span>Implant</span><span class="field-hint">%</span></div>
-                <input type="number" id="implant1" min="0" max="100" step="0.1" value="0">
+                <div class="field-label"><span>Drone Type</span></div>
+                <select id="droneType1"></select>
               </div>
               <div class="field-col">
-                <div class="field-label"><span id="targetLabel1">Target Vol</span><span class="field-hint" id="targetUnit1">m³</span></div>
-                <input type="number" id="target1" min="1" value="10000">
+                <div class="field-label"><span>Drones</span><span class="field-hint">max 5</span></div>
+                <input type="number" id="numDrones1" min="0" max="5" value="0">
               </div>
             </div>
           </div>
 
+          <!-- Target + Time-to-Pop -->
+          <div class="field field-compact">
+            <div class="field-row">
+              <div class="field-col">
+                <div class="field-label"><span id="targetLabel1">Target Vol</span><span class="field-hint" id="targetUnit1">m³</span></div>
+                <input type="number" id="target1" min="1" value="10000">
+              </div>
+              <div class="field-col">
+                <div class="field-label"><span>☄️ Asteroid Size</span><span class="field-hint">m³</span></div>
+                <input type="number" id="asteroidSize1" min="0" step="100" placeholder="optional">
+              </div>
+            </div>
+          </div>
+
+          <!-- Results -->
           <div class="results">
             <h3>// Output</h3>
             <div class="result-grid">
               <div class="result-item">
-                <div class="result-label">Yield / Cycle</div>
+                <div class="result-label">Module Yield / Cycle</div>
                 <div class="result-val" id="r_yieldCycle1">—</div>
               </div>
               <div class="result-item">
-                <div class="result-label">Yield / Hour</div>
-                <div class="result-val cyan" id="r_yieldHour1">—</div>
+                <div class="result-label">Drone Yield / Hour</div>
+                <div class="result-val green" id="r_droneYield1">—</div>
+              </div>
+              <div class="result-item">
+                <div class="result-label">Total Yield / Hour</div>
+                <div class="result-val cyan" id="r_totalYieldHour1">—</div>
               </div>
               <div class="result-item">
                 <div class="result-label">Cycle Time</div>
                 <div class="result-val" id="r_cycleTime1">—</div>
               </div>
               <div class="result-item">
-                <div class="result-label">Cycles</div>
+                <div class="result-label">Cycles to Fill</div>
                 <div class="result-val" id="r_cycles1">—</div>
               </div>
-              <div class="result-item wide">
+              <div class="result-item">
                 <div class="result-label">Total Time</div>
                 <div class="result-val" id="r_totalTime1">—</div>
               </div>
               <div class="result-item wide" id="depletionResult1" style="display:none">
                 <div class="result-label">⚠ Asteroid Depletion / Hour</div>
                 <div class="result-val warn" id="r_depletion1">—</div>
+              </div>
+              <div class="result-item wide" id="timetopopResult1" style="display:none">
+                <div class="result-label">☄️ Time-to-Pop (Asteroid)</div>
+                <div class="result-val purple" id="r_timetopop1">—</div>
               </div>
             </div>
           </div>
@@ -126,13 +169,15 @@
           <div class="vs-line"></div>
         </div>
 
-        <!-- Setup 2 -->
+        <!-- ==================== SETUP 2 ==================== -->
         <div class="card" id="setup2" style="display:none">
           <div class="card-title">
             <div class="card-num">02</div>
             <h2>Setup 2</h2>
           </div>
+
           <div class="chips" id="presets2"></div>
+
           <div class="field">
             <div class="field-label"><span>Ship</span></div>
             <select id="ship2"></select>
@@ -141,6 +186,7 @@
             <div class="field-label"><span>Mining Module</span></div>
             <select id="module2"></select>
           </div>
+
           <div class="field field-compact">
             <div class="field-row">
               <div class="field-col">
@@ -153,15 +199,40 @@
               </div>
             </div>
           </div>
+
+          <div class="field">
+            <div class="field-label"><span>Implant / Booster</span></div>
+            <select id="implantPreset2"></select>
+          </div>
+
+          <div class="field">
+            <div class="field-label"><span>🚀 Fleet Boost</span></div>
+            <select id="fleetBoost2"></select>
+          </div>
+
+          <div class="section-divider"><span>🤖 Drone Mining</span></div>
           <div class="field field-compact">
             <div class="field-row">
               <div class="field-col">
-                <div class="field-label"><span>Implant</span><span class="field-hint">%</span></div>
-                <input type="number" id="implant2" min="0" max="100" step="0.1" value="0">
+                <div class="field-label"><span>Drone Type</span></div>
+                <select id="droneType2"></select>
               </div>
+              <div class="field-col">
+                <div class="field-label"><span>Drones</span><span class="field-hint">max 5</span></div>
+                <input type="number" id="numDrones2" min="0" max="5" value="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="field field-compact">
+            <div class="field-row">
               <div class="field-col">
                 <div class="field-label"><span id="targetLabel2">Target Vol</span><span class="field-hint" id="targetUnit2">m³</span></div>
                 <input type="number" id="target2" min="1" value="10000">
+              </div>
+              <div class="field-col">
+                <div class="field-label"><span>☄️ Asteroid Size</span><span class="field-hint">m³</span></div>
+                <input type="number" id="asteroidSize2" min="0" step="100" placeholder="optional">
               </div>
             </div>
           </div>
@@ -170,28 +241,36 @@
             <h3>// Output</h3>
             <div class="result-grid">
               <div class="result-item">
-                <div class="result-label">Yield / Cycle</div>
+                <div class="result-label">Module Yield / Cycle</div>
                 <div class="result-val" id="r_yieldCycle2">—</div>
               </div>
               <div class="result-item">
-                <div class="result-label">Yield / Hour</div>
-                <div class="result-val cyan" id="r_yieldHour2">—</div>
+                <div class="result-label">Drone Yield / Hour</div>
+                <div class="result-val green" id="r_droneYield2">—</div>
+              </div>
+              <div class="result-item">
+                <div class="result-label">Total Yield / Hour</div>
+                <div class="result-val cyan" id="r_totalYieldHour2">—</div>
               </div>
               <div class="result-item">
                 <div class="result-label">Cycle Time</div>
                 <div class="result-val" id="r_cycleTime2">—</div>
               </div>
               <div class="result-item">
-                <div class="result-label">Cycles</div>
+                <div class="result-label">Cycles to Fill</div>
                 <div class="result-val" id="r_cycles2">—</div>
               </div>
-              <div class="result-item wide">
+              <div class="result-item">
                 <div class="result-label">Total Time</div>
                 <div class="result-val" id="r_totalTime2">—</div>
               </div>
               <div class="result-item wide" id="depletionResult2" style="display:none">
                 <div class="result-label">⚠ Asteroid Depletion / Hour</div>
                 <div class="result-val warn" id="r_depletion2">—</div>
+              </div>
+              <div class="result-item wide" id="timetopopResult2" style="display:none">
+                <div class="result-label">☄️ Time-to-Pop (Asteroid)</div>
+                <div class="result-val purple" id="r_timetopop2">—</div>
               </div>
             </div>
           </div>
